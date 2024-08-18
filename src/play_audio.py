@@ -1,4 +1,3 @@
-import asyncio
 import discord
 
 async def play_audio(voice_client, audio_path):

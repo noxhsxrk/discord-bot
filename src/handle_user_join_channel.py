@@ -7,7 +7,7 @@ last_message_time = defaultdict(lambda: 0)
 
 COOLDOWN_PERIOD = 60
 
-async def handle_channel_join(voice_client, channel, member):
+async def handle_user_join_channel(voice_client, channel, member):
   if not voice_client or voice_client.channel != channel:
       print("Bot is not connected to the same voice channel.")
       return
