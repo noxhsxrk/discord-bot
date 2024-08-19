@@ -67,6 +67,24 @@ async def oat(interaction: discord.Interaction):
       await interaction.response.send_message(
           "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
       )
+      
+@bot.tree.command(name='oat-token', description='Enter your own token')
+async def oat_token(interaction: discord.Interaction):
+  await interaction.response.send_message(
+      "Please enter your token:", ephemeral=True
+  )
+
+  def check(m):
+      return m.author == interaction.user and m.channel == interaction.channel
+
+  try:
+      msg = await bot.wait_for('message', check=check, timeout=60.0)
+      user_token = msg.content
+
+      await interaction.followup.send(f"Token received: {user_token}", ephemeral=True)
+
+  except asyncio.TimeoutError:
+      await interaction.followup.send("You took too long to respond!", ephemeral=True)
 
 @bot.event
 async def on_voice_state_update(member, before, after):
