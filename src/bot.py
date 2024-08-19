@@ -5,19 +5,24 @@ import os
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+import openai
+from langdetect import detect
 
 from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
+from get_openai_response import get_openai_response
 from handle_screen_share_start import handle_screen_share_start
 from handle_user_join_channel import handle_user_join_channel
 
 load_dotenv()
 token = os.getenv('TOKEN')
 guild_id = int(os.getenv('GUILD_ID')) 
+openai.api_key = os.getenv('OPENAI_API_KEY') 
 
 intents = discord.Intents.default()
 intents.guilds = True
 intents.voice_states = True
+intents.messages = True  # Enable message intents to handle mentions
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -30,8 +35,8 @@ def convert_to_utc(time_str):
   return time_obj.astimezone(timezone.utc).time()
 
 fixed_times_utc = [
-{"task_name": entry["task_name"], "time": convert_to_utc(entry["time"]), "channel": entry["channel"]}
-for entry in fixed_times
+  {"task_name": entry["task_name"], "time": convert_to_utc(entry["time"]), "channel": entry["channel"]}
+  for entry in fixed_times
 ]
 
 exception_channel_ids = list({entry["channel"] for entry in fixed_times})
@@ -50,18 +55,18 @@ async def on_ready():
 
 @bot.tree.command(name='oat', description='อัญเชิญพี่โอ๊ตเข้าดิส')
 async def oat(interaction: discord.Interaction):
-    user_voice = interaction.user.voice
-    if user_voice and user_voice.channel:
-        if interaction.channel == user_voice.channel:
-            await connect_bot_to_voice_channel(interaction, user_voice.channel)
-        else:
-            await interaction.response.send_message(
-                "ฮั่นแน่!!! ใช้คำสั่งในห้องตัวเองสิ", ephemeral=True
-            )
-    else:
-        await interaction.response.send_message(
-            "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
-        )
+  user_voice = interaction.user.voice
+  if user_voice and user_voice.channel:
+      if interaction.channel == user_voice.channel:
+          await connect_bot_to_voice_channel(interaction, user_voice.channel)
+      else:
+          await interaction.response.send_message(
+              "ฮั่นแน่!!! ใช้คำสั่งในห้องตัวเองสิ", ephemeral=True
+          )
+  else:
+      await interaction.response.send_message(
+          "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
+      )
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -75,7 +80,14 @@ async def on_voice_state_update(member, before, after):
 
   if after.channel and after.channel != before.channel:
       await handle_user_join_channel(voice_client, after.channel, member)
-      
+
+@bot.event
+async def on_message(message):
+  if bot.user.mentioned_in(message) and not message.author.bot:
+      response = await get_openai_response(message.content)
+      await message.channel.send(response)
+  await bot.process_commands(message)
+
 @tasks.loop(hours=24)
 async def schedule_daily_task():
   while True:
@@ -118,6 +130,6 @@ async def join_voice_channel(channel_id):
       if voice_client.channel.id not in exception_channel_ids:
           await voice_client.disconnect()
 
-  await connect_bot_schedule(bot,channel)
+  await connect_bot_schedule(bot, channel)
 
 bot.run(token)
