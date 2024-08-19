@@ -53,6 +53,8 @@ async def on_ready():
       print("Commands synced successfully.")
   except Exception as e:
       print(f"Error syncing commands: {e}")
+  activity = discord.Activity(type=discord.ActivityType.custom, name="กำลังดู Infra ของ Kaidee อยู่")
+  await bot.change_presence(activity=activity)
   schedule_daily_task.start()
 
 @bot.tree.command(name='oat', description='อัญเชิญพี่โอ๊ตเข้าดิส')
@@ -108,9 +110,9 @@ async def on_message(message):
   await bot.process_commands(message)
 
 async def handle_message_response(message):
-  response = await get_openai_response(message.content,250,message.author.id)
-  await message.channel.send(response)
-  
+  async with message.channel.typing():
+      response = await get_openai_response(message.content, 250, message.author.id)
+      await message.channel.send(response)
 @tasks.loop(hours=24)
 async def schedule_daily_task():
   while True:
