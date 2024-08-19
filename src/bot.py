@@ -12,7 +12,7 @@ from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
 from get_openai_response import get_openai_response
 from handle_screen_share_start import handle_screen_share_start
-from handle_user_join_channel import handle_user_join_channel
+from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -45,6 +45,8 @@ exception_channel_ids = list({entry["channel"] for entry in fixed_times})
 async def on_ready():
   print(f'Logged in as {bot.user.name}')
   try:
+      await pre_generate_messages()
+      print("Pre-generated messages loaded successfully.")
       bot.tree.clear_commands(guild=discord.Object(id=guild_id))
       bot.tree.add_command(oat, guild=discord.Object(id=guild_id))
       await bot.tree.sync(guild=discord.Object(id=guild_id))
@@ -102,10 +104,13 @@ async def on_voice_state_update(member, before, after):
 @bot.event
 async def on_message(message):
   if bot.user.mentioned_in(message) and not message.author.bot:
-      response = await get_openai_response(message.content)
-      await message.channel.send(response)
+      asyncio.create_task(handle_message_response(message))
   await bot.process_commands(message)
 
+async def handle_message_response(message):
+  response = await get_openai_response(message.content,250,message.author.id)
+  await message.channel.send(response)
+  
 @tasks.loop(hours=24)
 async def schedule_daily_task():
   while True:
