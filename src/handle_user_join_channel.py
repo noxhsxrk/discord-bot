@@ -5,7 +5,7 @@ import time
 from collections import defaultdict
 
 last_message_time = defaultdict(lambda: 0)
-COOLDOWN_PERIOD = 1
+COOLDOWN_PERIOD = 60
 
 pre_generated_messages = {}
 
