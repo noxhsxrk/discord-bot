@@ -12,5 +12,8 @@ async def handle_screen_share_start(voice_client, channel, member):
         return
 
     await play_audio(voice_client, 'sounds/can-you-see-the-screen.m4a')
-    name = members_names.get(member.id, member.display_name)
+
+    member_info = next((m for m in members_names if m["id"] == member.id), None)
+    name = member_info["name"] if member_info else member.display_name
+
     await text_channel.send(f"เห็นจอของ {name} กันมั้ยครับ")
