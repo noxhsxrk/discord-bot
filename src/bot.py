@@ -17,8 +17,8 @@ from handle_user_join_channel import handle_user_join_channel, pre_generate_mess
 
 load_dotenv()
 token = os.getenv('TOKEN')
-guild_id = int(os.getenv('GUILD_ID')) 
-openai.api_key = os.getenv('OPENAI_API_KEY') 
+guild_id = int(os.getenv('GUILD_ID'))
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -138,7 +138,7 @@ async def on_message(message):
 async def handle_message_response(message):
   async with message.channel.typing():
       response = await get_openai_response(message.content, 250, message.author.id)
-      await message.channel.send(response)
+      await message.reply(response) 
 
 @tasks.loop(hours=24)
 async def schedule_daily_task():

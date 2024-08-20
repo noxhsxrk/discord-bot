@@ -1,8 +1,13 @@
+import json
+import os
 from get_openai_response import get_openai_response
-from members_names import members_names
 from play_audio_for_member import play_audio_for_member
 import time
 from collections import defaultdict
+
+from dotenv import load_dotenv
+load_dotenv()
+members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
 last_message_time = defaultdict(lambda: 0)
 COOLDOWN_PERIOD = 60
@@ -28,11 +33,12 @@ async def handle_user_join_channel(voice_client, channel, member):
 
   if current_time - last_time >= COOLDOWN_PERIOD:
       message = pre_generated_messages.get(member.id, "สวัสดีครับ")
+      message_with_mention = f"<@{member.id}> {message}"
 
       text_channel = voice_client.guild.get_channel(voice_client.channel.id)
       if text_channel:
           async with text_channel.typing():
-              await text_channel.send(message)
+              await text_channel.send(message_with_mention)
           last_message_time[member.id] = current_time
 
           member_info = next((m for m in members_names if m["id"] == member.id), None)
