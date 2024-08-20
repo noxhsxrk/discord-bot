@@ -58,7 +58,7 @@ async def on_ready():
   except Exception as e:
       print(f"Error syncing commands: {e}")
   
-  asyncio.create_task(change_activity())
+  asyncio.create_task(change_activity(bot))
   schedule_daily_task.start()
 
 @bot.tree.command(name='oat', description='อัญเชิญพี่โอ๊ตเข้าดิส')
