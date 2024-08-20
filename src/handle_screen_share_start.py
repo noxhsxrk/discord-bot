@@ -1,5 +1,10 @@
+import json
+import os
 from play_audio import play_audio
-from members_names import members_names
+from dotenv import load_dotenv
+
+load_dotenv()
+members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
 async def handle_screen_share_start(voice_client, channel, member):
   if not voice_client or voice_client.channel != channel:

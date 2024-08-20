@@ -75,12 +75,6 @@ async def oat(interaction: discord.Interaction):
       await interaction.response.send_message(
           "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
       )
-      
-@bot.tree.command(name='oat-token', description='Enter your own token')
-async def oat_token(interaction: discord.Interaction):
-  await interaction.response.send_message(
-      "Please enter your token:", ephemeral=True
-  )
 
   def check(m):
       return m.author == interaction.user and m.channel == interaction.channel
