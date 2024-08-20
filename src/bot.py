@@ -13,10 +13,10 @@ from langdetect import detect
 from activity_manager import change_activity
 from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
-from get_openai_response import get_openai_response, handle_chat_response
+from get_openai_response import handle_chat_response
 from handle_screen_share_start import handle_screen_share_start
 from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
-from image_generator import generate_and_send_image, handle_image_request
+from image_generator import  handle_image_request
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -110,7 +110,7 @@ async def on_message(message):
       content_lower = message.content.lower()
       if any(keyword in content_lower for keyword in ["สร้าง", "สร้างรูป", "ขอรูป", "รูป"]):
           print("found keyword in message", content_lower)
-          await handle_image_request(message, content_lower)
+          await handle_image_request(bot, message, content_lower)
       else:
           await handle_chat_response(message)
           
