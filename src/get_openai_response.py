@@ -65,3 +65,11 @@ async def get_openai_response(prompt, max_tokens=250, user_id=""):
       return response.choices[0].message['content'].strip()
   except Exception as e:
       return f"Error: {e}"
+  
+async def handle_chat_response(message):
+  async with message.channel.typing():
+      try:
+          response = await get_openai_response(message.content, 250, message.author.id)
+          await message.reply(response)
+      except Exception as e:
+          await message.reply(f"An error occurred while processing your request: {e}")

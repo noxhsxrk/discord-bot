@@ -3,17 +3,20 @@ from datetime import datetime, timedelta, timezone
 import json
 import os
 import random
+import aiohttp
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import openai
 from langdetect import detect
 
+from activity_manager import change_activity
 from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
-from get_openai_response import get_openai_response
+from get_openai_response import get_openai_response, handle_chat_response
 from handle_screen_share_start import handle_screen_share_start
 from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
+from image_generator import generate_and_send_image, handle_image_request
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -42,16 +45,6 @@ fixed_times_utc = [
 
 exception_channel_ids = list({entry["channel"] for entry in fixed_times})
 
-activities = [
-    discord.Activity(type=discord.ActivityType.watching, name="กำลังดู Infra ของ Kaidee อยู่"),
-    discord.Activity(type=discord.ActivityType.watching, name="กำลังดู แก้บัค ของ Kaidee อยู่"),
-    discord.Activity(type=discord.ActivityType.listening, name="กำลังฟังจี่หอย"),
-    discord.Activity(type=discord.ActivityType.listening, name="กำลังฟัง Die For You"),
-    discord.Activity(type=discord.ActivityType.playing, name="กำลังแอบเล่น Honkai"),
-    discord.Activity(type=discord.ActivityType.playing, name="กำลังแอบเล่น เกมโป๊"),
-    discord.Activity(type=discord.ActivityType.watching, name="กำลังดูหนังเว็บ 037"),
-]
-
 @bot.event
 async def on_ready():
   print(f'Logged in as {bot.user.name}')
@@ -67,21 +60,6 @@ async def on_ready():
   
   asyncio.create_task(change_activity())
   schedule_daily_task.start()
-
-async def change_activity():
-  while True:
-      now = datetime.now(timezone(timedelta(hours=7)))
-      start_time = now.replace(hour=9, minute=0, second=0, microsecond=0)
-      end_time = now.replace(hour=18, minute=0, second=0, microsecond=0)
-
-      if start_time <= now < end_time:
-          new_activity = random.choice(activities)
-          await bot.change_presence(activity=new_activity)
-          print(f"Changed activity to: {new_activity.name}")
-      else:
-          await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="กำลังเล่นเกมโป๊"))
-
-      await asyncio.sleep(3600)
 
 @bot.tree.command(name='oat', description='อัญเชิญพี่โอ๊ตเข้าดิส')
 async def oat(interaction: discord.Interaction):
@@ -131,14 +109,17 @@ async def on_voice_state_update(member, before, after):
 
 @bot.event
 async def on_message(message):
-  if bot.user.mentioned_in(message) and not message.author.bot:
-      asyncio.create_task(handle_message_response(message))
-  await bot.process_commands(message)
+  if message.author.bot:
+      return
 
-async def handle_message_response(message):
-  async with message.channel.typing():
-      response = await get_openai_response(message.content, 250, message.author.id)
-      await message.reply(response) 
+  if bot.user.mentioned_in(message):
+      content_lower = message.content.lower()
+      if any(keyword in content_lower for keyword in ["สร้าง", "สร้างรูป", "ขอรูป", "รูป"]):
+          print("found keyword in message", content_lower)
+          await handle_image_request(message, content_lower)
+      else:
+          await handle_chat_response(message)
+          
 
 @tasks.loop(hours=24)
 async def schedule_daily_task():
