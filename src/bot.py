@@ -1,19 +1,17 @@
 import asyncio
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 import json
 import os
-import random
-import aiohttp
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import openai
-from langdetect import detect
 
 from activity_manager import change_activity
 from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
-from get_openai_response import handle_chat_response
+from get_openai_response import get_openai_response, handle_chat_response
 from handle_screen_share_start import handle_screen_share_start
 from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
 from image_generator import  handle_image_request
@@ -27,6 +25,8 @@ intents = discord.Intents.default()
 intents.guilds = True
 intents.voice_states = True
 intents.messages = True
+
+conversation_history = defaultdict(list)
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -94,14 +94,28 @@ async def on_message(message):
   if message.author.bot:
       return
 
+  channel_id = message.channel.id
+
+  conversation_history[channel_id].append({"role": "user", "content": message.content})
+
   if bot.user.mentioned_in(message):
       content_lower = message.content.lower()
       if any(keyword in content_lower for keyword in ["สร้าง", "สร้างรูป", "ขอรูป", "รูป"]):
           print("found keyword in message", content_lower)
           await handle_image_request(bot, message, content_lower)
       else:
-          await handle_chat_response(message)
-          
+          async with message.channel.typing():
+              conversation_text = "\n".join(
+                  f"{entry['role']}: {entry['content']}" for entry in conversation_history[channel_id]
+              )
+
+              response = await get_openai_response(conversation_text, 250, message.author.id)
+              await message.reply(response)
+
+              conversation_history[channel_id].append({"role": "assistant", "content": response})
+
+  if len(conversation_history[channel_id]) > 20:
+      conversation_history[channel_id] = conversation_history[channel_id][-10:]
 
 @tasks.loop(hours=24)
 async def schedule_daily_task():
