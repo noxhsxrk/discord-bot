@@ -10,7 +10,7 @@ load_dotenv()
 members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
 last_message_time = defaultdict(lambda: 0)
-COOLDOWN_PERIOD = 60
+COOLDOWN_PERIOD = 3600
 
 pre_generated_messages = {}
 

@@ -20,7 +20,7 @@ async def generate_and_send_image(message, prompt):
               image_url = response['data'][0]['url']
               print(f"Image generated successfully. URL: {image_url}")
 
-              timeout = aiohttp.ClientTimeout(total=60)
+              timeout = aiohttp.ClientTimeout(total=150)
               async with aiohttp.ClientSession(timeout=timeout) as session:
                   async with session.get(image_url) as resp:
                       async with message.channel.typing():
@@ -36,7 +36,6 @@ async def generate_and_send_image(message, prompt):
 
                               os.remove("temp_image.png")
                           else:
-                              print("Failed to download the image.")
                               await message.reply("Failed to download the image.")
               break
 
