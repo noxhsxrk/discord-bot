@@ -11,6 +11,7 @@ import openai
 from activity_manager import change_activity
 from connect_bot_schedule import connect_bot_schedule
 from connect_bot_to_voice_channel import connect_bot_to_voice_channel
+from conversation_history import check_file_age, read_from_file, write_to_file
 from get_openai_response import get_openai_response, handle_chat_response
 from handle_screen_share_start import handle_screen_share_start
 from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
@@ -96,26 +97,25 @@ async def on_message(message):
 
   channel_id = message.channel.id
 
-  conversation_history[channel_id].append({"role": "user", "content": message.content})
+  check_file_age(channel_id)
+
+  write_to_file(channel_id, "user", message.content)
 
   if bot.user.mentioned_in(message):
       content_lower = message.content.lower()
       if any(keyword in content_lower for keyword in ["สร้าง", "สร้างรูป", "ขอรูป", "รูป"]):
-          print("found keyword in message", content_lower)
           await handle_image_request(bot, message, content_lower)
       else:
           async with message.channel.typing():
+              conversation_history = read_from_file(channel_id)
               conversation_text = "\n".join(
-                  f"{entry['role']}: {entry['content']}" for entry in conversation_history[channel_id]
+                  f"{entry['role']}: {entry['content']}" for entry in conversation_history
               )
 
               response = await get_openai_response(conversation_text, 250, message.author.id)
               await message.reply(response)
 
-              conversation_history[channel_id].append({"role": "assistant", "content": response})
-
-  if len(conversation_history[channel_id]) > 20:
-      conversation_history[channel_id] = conversation_history[channel_id][-10:]
+              write_to_file(channel_id, "assistant", response)
 
 @tasks.loop(hours=24)
 async def schedule_daily_task():
