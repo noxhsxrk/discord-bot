@@ -3,3 +3,4 @@ run:
 
 zip: 
 	sh scripts/zip.sh
+	mv archive.zip ~/Desktop 
