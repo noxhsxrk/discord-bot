@@ -21,6 +21,7 @@ load_dotenv()
 token = os.getenv('TOKEN')
 guild_id = int(os.getenv('GUILD_ID'))
 openai.api_key = os.getenv('OPENAI_API_KEY')
+lumi_members = json.loads(os.getenv('LUMI_MEMBERS'))
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -30,6 +31,12 @@ intents.messages = True
 conversation_history = defaultdict(list)
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+def load_questions():
+    with open('src/constant/questions.json', 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+questions = load_questions()
 
 with open('src/constant/fixed_times.json', 'r') as f:
   fixed_times = json.load(f)
@@ -54,6 +61,7 @@ async def on_ready():
       print("Pre-generated messages loaded successfully.")
       bot.tree.clear_commands(guild=discord.Object(id=guild_id))
       bot.tree.add_command(oat, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(question, guild=discord.Object(id=guild_id))
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")
   except Exception as e:
@@ -76,6 +84,28 @@ async def oat(interaction: discord.Interaction):
       await interaction.response.send_message(
           "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
       )
+      
+@bot.tree.command(name='question', description='เกมถามไม่ตรงคำตอบของ Lumi')
+async def question(interaction: discord.Interaction, name: str, q_number: str, number: str):
+  question_text = questions.get(q_number, {}).get(number, "คำถามไม่พบ")
+  
+  excluded_member = next((member for member in lumi_members if member['name'].lower() == name.lower()), None)
+  
+  if not excluded_member:
+      await interaction.response.send_message(f"Member '{name}' not found.", ephemeral=True)
+      return
+  
+  await interaction.response.defer(ephemeral=True)
+  
+  for member in lumi_members:
+      if member['name'].lower() != name.lower():
+          user = await bot.fetch_user(member['id'])
+          try:
+              await user.send(question_text)
+          except discord.Forbidden:
+              print(f"Could not send message to {member['name']} (ID: {member['id']})")
+
+  await interaction.followup.send(f"Question sent to all members except {name}.", ephemeral=True)
 
 @bot.event
 async def on_voice_state_update(member, before, after):
