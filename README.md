@@ -25,17 +25,20 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 
 1. **Clone the repository**:
    bash
-   git clone https://github.com/noxhsxrk/discord-bot
+   git clone <https://github.com/noxhsxrk/discord-bot>
    cd discord-bot
 
 2. **Install the required packages**:
+
    ```bash
    pip install -r requirements.txt
    ```
+
 3. **Set up environment variables**:
 
    - Create a `.env` file in the root directory.
    - Add the following variables:
+
      ```
      TOKEN=your_discord_bot_token
      GUILD_ID=your_guild_id
@@ -44,7 +47,9 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
      ```
 
 4. **Prepare fixed times**:
+
    - Create a `src/constant/fixed_times.json` file with the following structure:
+
      ```json
      [
      {"task_name": "Task 1", "time": "08:00:00 GMT+7", "channel": 123456789012345678},
@@ -55,9 +60,11 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 ## Usage
 
 - **Running the Bot**: Start the bot by executing the main script.
+
   ```
   python bot.py
   ```
+
 - **Commands**:
 
   - `!oat`: Summon the bot to your voice channel.

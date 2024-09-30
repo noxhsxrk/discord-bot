@@ -66,7 +66,7 @@ async def on_ready():
       print("Commands synced successfully.")
   except Exception as e:
       print(f"Error syncing commands: {e}")
-  
+
   asyncio.create_task(change_activity(bot))
   schedule_daily_task.start()
 
@@ -84,28 +84,28 @@ async def oat(interaction: discord.Interaction):
       await interaction.response.send_message(
           "เข้าห้องมาก่อนนน ค่อยเรียก", ephemeral=True
       )
-      
+
 @bot.tree.command(name='question', description='เกมถามไม่ตรงคำตอบของ Lumi')
 async def question(interaction: discord.Interaction, name: str, q_number: str, number: str):
-  question_text = questions.get(q_number, {}).get(number, "คำถามไม่พบ")
-  
+  question_text = questions.get(q_number, {}).get(number, "ไม่พบคำถาม")
+
   excluded_member = next((member for member in lumi_members if member['name'].lower() == name.lower()), None)
-  
+
   if not excluded_member:
       await interaction.response.send_message(f"Member '{name}' not found.", ephemeral=True)
       return
-  
+
   await interaction.response.defer(ephemeral=True)
-  
+
   for member in lumi_members:
       if member['name'].lower() != name.lower():
           user = await bot.fetch_user(member['id'])
           try:
               await user.send(question_text)
           except discord.Forbidden:
-              print(f"Could not send message to {member['name']} (ID: {member['id']})")
+              print(f"ส่งข้อความไปหา {member['name']} (ID: {member['id']}) ไม่ได้")
 
-  await interaction.followup.send(f"Question sent to all members except {name}.", ephemeral=True)
+  await interaction.followup.send(f"ส่งคำถามไปหาทุกคน ยกเว้น '{name}' เรียบร้อยแล้ว", ephemeral=True)
 
 @bot.event
 async def on_voice_state_update(member, before, after):
