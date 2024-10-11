@@ -1,11 +1,7 @@
-import json
-import os
 from langdetect import detect
 import openai
 
-from dotenv import load_dotenv
-load_dotenv()
-members_names = json.loads(os.getenv('MEMBERS_NAMES'))
+from constant.config import members_names
 
 async def get_openai_response(prompt, max_tokens=250, user_id=""):
   try:

@@ -4,10 +4,7 @@ from get_openai_response import get_openai_response
 from play_audio_for_member import play_audio_for_member
 import time
 from collections import defaultdict
-
-from dotenv import load_dotenv
-load_dotenv()
-members_names = json.loads(os.getenv('MEMBERS_NAMES'))
+from constant.config import members_names
 
 last_message_time = defaultdict(lambda: 0)
 COOLDOWN_PERIOD = 3600

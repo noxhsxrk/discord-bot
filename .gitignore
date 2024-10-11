@@ -4,3 +4,6 @@
 __pycache__
 archive.zip
 conversation_*.txt
+ScoreBoard*.csv
+AnswerBoard*.csv
+result.png
