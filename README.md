@@ -4,11 +4,11 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 
 ## Features
 
-- **Voice Channel Interaction**: The bot can join voice channels and play audio files.
-- **Message Handling**: Responds to user messages with text or images.
-- **Scheduled Tasks**: Executes tasks at specified times.
+- **Game Management**: Supports a Herd Mentality-inspired game with commands to start sessions, rounds, and manage scores.
+- **Image Generation**: Creates images from game results using the Pillow library.
 - **OpenAI Integration**: Uses OpenAI's API for generating responses and images.
-- **Language Detection**: Detects the language of user messages to tailor responses.
+- **Voice Channel Interaction**: The bot can join voice channels and respond to voice state changes.
+- **Message Handling**: Responds to user messages with text or images.
 
 ## Setup
 
@@ -19,7 +19,7 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 - `aiohttp` library
 - `python-dotenv` library
 - `openai` library
-- `langdetect` library
+- `Pillow` library
 
 ### Installation
 
@@ -68,6 +68,13 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 - **Commands**:
 
   - `!oat`: Summon the bot to your voice channel.
+  - `/hm`: Start a new Herd Mentality session.
+  - `/hq "question"`: Start a new round with a specified question.
+  - `/ha "answer"`: Submit an answer for the current question.
+  - `/hp "name1,name2"`: Add points to specified players.
+  - `/hs`: Show answers for the current question.
+  - `/hr`: Show current results and end the round.
+  - `/he`: End the current session.
 
 - **Interactions**:
   - The bot responds to mentions and specific keywords in messages.
