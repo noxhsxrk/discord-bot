@@ -40,7 +40,7 @@ async def show_answers(interaction: discord.Interaction):
 
         def create_callback(self, name, answer):
             async def callback(interaction: discord.Interaction):
-                await interaction.response.send_message(f"{name} : {answer}")
+                await interaction.response.send_message(f"{name} : **{answer}**")
             return callback
 
     view = AnswerView(answers)

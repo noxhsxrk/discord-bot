@@ -6,7 +6,7 @@ from constant.config import lumi_members, bot, submitted_users, name_mapping
 @bot.tree.command(name='ha', description='Submit an answer for the current question.')
 async def submit_answer(interaction: discord.Interaction, answer: str):
     if interaction.user.id in submitted_users:
-        await interaction.response.send_message("You have already submitted an answer for this round.", ephemeral=True)
+        await interaction.response.send_message("ฮั่นแน่ ตอบได้แค่ครั้งเดียวเด้ออออออ", ephemeral=True)
         return
 
     with open('ScoreBoard.csv', 'r', newline='', encoding='utf-8') as csvfile:

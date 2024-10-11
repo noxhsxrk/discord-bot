@@ -19,4 +19,4 @@ async def start_session(interaction: discord.Interaction):
         writer.writerow(header)
         writer.writerow(['Result'] + ['' for _ in lumi_members])
 
-    await interaction.response.send_message("New Herd Mentality session started!", ephemeral=True)
+    await interaction.response.send_message("**New Herd Mentality session started!**")
