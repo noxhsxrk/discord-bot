@@ -68,13 +68,13 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 - **Commands**:
 
   - `!oat`: Summon the bot to your voice channel.
-  - `/hm`: Start a new Herd Mentality session.
-  - `/hq "question"`: Start a new round with a specified question.
+  - `/herdmentality`: Start a new Herd Mentality session.
+  - `/hquiz "question"`: Start a new round with a specified question.
   - `/ha "answer"`: Submit an answer for the current question.
-  - `/hp "name1,name2"`: Add points to specified players.
-  - `/hs`: Show answers for the current question.
-  - `/hr`: Show current results and end the round.
-  - `/he`: End the current session.
+  - `/haddpoint "name1,name2"`: Add points to specified players.
+  - `/hshow`: Show answers for the current question.
+  - `/hresult`: Show current results and end the round.
+  - `/hend`: End the current session.
 
 - **Interactions**:
   - The bot responds to mentions and specific keywords in messages.

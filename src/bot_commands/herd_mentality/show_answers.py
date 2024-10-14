@@ -3,7 +3,7 @@ import os
 import discord
 from constant.config import bot, name_mapping
 
-@bot.tree.command(name='hs', description='Show answers for the current question.')
+@bot.tree.command(name='hshow', description='Show answers for the current question.')
 async def show_answers(interaction: discord.Interaction):
     with open('ScoreBoard.csv', 'r', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)

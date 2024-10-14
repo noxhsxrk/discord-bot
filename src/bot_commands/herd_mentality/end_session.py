@@ -5,7 +5,7 @@ import glob
 from constant.config import AUTHORIZED_USER_ID, bot
 import discord
 
-@bot.tree.command(name='he', description='End the current session.')
+@bot.tree.command(name='hend', description='End the current session.')
 async def end_session(interaction: discord.Interaction):
     if interaction.user.id != AUTHORIZED_USER_ID:
         await interaction.response.send_message("You are not authorized to end a session.", ephemeral=True)

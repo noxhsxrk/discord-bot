@@ -54,7 +54,7 @@ def generate_result_image(questions):
 
   image.save('result.png')
 
-@bot.tree.command(name='hr', description='Show current results and end the round.')
+@bot.tree.command(name='hresult', description='Show current results and end the round.')
 async def show_results(interaction: discord.Interaction):
   try:
       await interaction.response.defer()

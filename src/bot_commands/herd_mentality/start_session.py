@@ -3,7 +3,7 @@ import os
 import discord
 from constant.config import AUTHORIZED_USER_ID, lumi_members, bot, name_mapping
 
-@bot.tree.command(name='hm', description='Start a new Herd Mentality session.')
+@bot.tree.command(name='herdmentality', description='Start a new Herd Mentality session.')
 async def start_session(interaction: discord.Interaction):
     if interaction.user.id != AUTHORIZED_USER_ID:
         await interaction.response.send_message("You are not authorized to start a new session.", ephemeral=True)

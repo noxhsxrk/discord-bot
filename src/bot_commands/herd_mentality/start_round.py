@@ -4,7 +4,7 @@ import glob
 import discord
 from constant.config import AUTHORIZED_USER_ID, lumi_members, bot, name_mapping, submitted_users
 
-@bot.tree.command(name='hq', description='Start a new round with a question.')
+@bot.tree.command(name='hquiz', description='Start a new round with a question.')
 async def start_round(interaction: discord.Interaction, question: str):
   if interaction.user.id != AUTHORIZED_USER_ID:
       await interaction.response.send_message("You are not authorized to start a new round.", ephemeral=True)

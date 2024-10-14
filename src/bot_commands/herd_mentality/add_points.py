@@ -2,7 +2,7 @@ import csv
 import discord
 from constant.config import bot, name_mapping
 
-@bot.tree.command(name='hp', description='Add points to specified players.')
+@bot.tree.command(name='haddpoint', description='Add points to specified players.')
 async def add_points(interaction: discord.Interaction, names: str):
   name_list = names.split(',')
 
