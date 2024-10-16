@@ -1,11 +1,20 @@
 import csv
 import discord
-from constant.config import bot, name_mapping
+import os
+from constant.config import bot, name_mapping,AUTHORIZED_USER_ID
 
 @bot.tree.command(name='haddpoint', description='Add points to specified players.')
 async def add_points(interaction: discord.Interaction, names: str):
+  if interaction.user.id != AUTHORIZED_USER_ID:
+        await interaction.response.send_message("You are not authorized to add a point.", ephemeral=True)
+        return
+    
+  if not os.path.exists('ScoreBoard.csv'):
+        await interaction.response.send_message("No active session to end.", ephemeral=True)
+        return
+    
   name_list = names.split(',')
-
+  
   with open('ScoreBoard.csv', 'r', newline='', encoding='utf-8') as csvfile:
       reader = csv.reader(csvfile)
       questions = list(reader)
