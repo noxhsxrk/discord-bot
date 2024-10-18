@@ -1,10 +1,14 @@
 import csv
 import os
 import discord
-from constant.config import bot, name_mapping
+from constant.config import bot, AUTHORIZED_USER_ID
 
 @bot.tree.command(name='hshow', description='Show answers for the current question.')
 async def show_answers(interaction: discord.Interaction):
+    if interaction.user.id != AUTHORIZED_USER_ID:
+        await interaction.response.send_message("You are not authorized to show answers.", ephemeral=True)
+        return
+    
     with open('ScoreBoard.csv', 'r', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         questions = list(reader)

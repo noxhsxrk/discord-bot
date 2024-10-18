@@ -1,7 +1,7 @@
 import csv
 import os
 import discord
-from constant.config import bot
+from constant.config import bot,AUTHORIZED_USER_ID
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_result_image(questions):
@@ -57,6 +57,10 @@ def generate_result_image(questions):
 @bot.tree.command(name='hresult', description='Show current results and end the round.')
 async def show_results(interaction: discord.Interaction):
   try:
+      if interaction.user.id != AUTHORIZED_USER_ID:
+        await interaction.response.send_message("You are not authorized to show results.", ephemeral=True)
+        return
+    
       await interaction.response.defer()
 
       with open('ScoreBoard.csv', 'r', newline='', encoding='utf-8') as csvfile:
@@ -100,5 +104,4 @@ async def show_results(interaction: discord.Interaction):
               os.rename(answer_board_filename, f'AnswerBoard_{current_question}_Inactive.csv')
 
   except Exception as e:
-      # Use follow-up message to send error details
       await interaction.followup.send(f"An error occurred: {str(e)}")
