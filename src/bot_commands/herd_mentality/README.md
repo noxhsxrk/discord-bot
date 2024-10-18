@@ -68,8 +68,9 @@ _Herd Mentality_ is a game of consensus and fun. It's perfect for parties and ga
 - [x] Show answers using /hshow command.
 - [x] Add points using /haddpoint command.
 - [x] End the session using /hend command.
-- [ ] Improve /haddpoint by changing from inserting player's name to using discord.ui.View.
-- [ ] Improve /herdmentality to start a new session by adding a 'without' parameter for players not participating in the session.
+- [x] Improve /haddpoint by changing from inserting player's name to using discord.ui.View.
+- [x] Improve /herdmentality to start a new session by adding a 'without' parameter for players not participating in the session.
+- [x] Add interaction for submitting answers.
 - [ ] Adding COW!!
 
 ## Footnotes

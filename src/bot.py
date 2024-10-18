@@ -1,3 +1,4 @@
+from bot_commands.herd_mentality.add_points_view import add_points_view
 import discord
 from discord.ext import tasks
 
@@ -13,7 +14,6 @@ from bot_commands.herd_mentality.start_session import start_session
 from bot_commands.oat import oat
 from bot_commands.question import question
 
-from connect_bot_schedule import connect_bot_schedule
 from conversation_history import check_file_age, read_from_file, write_to_file
 from get_openai_response import get_openai_response
 from handle_screen_share_start import handle_screen_share_start
@@ -27,13 +27,17 @@ async def on_ready():
       bot.tree.clear_commands(guild=discord.Object(id=guild_id))
       bot.tree.add_command(oat, guild=discord.Object(id=guild_id))
       bot.tree.add_command(question, guild=discord.Object(id=guild_id))
+      
+      #for Herd Mentality
       bot.tree.add_command(start_session, guild=discord.Object(id=guild_id))
       bot.tree.add_command(start_round, guild=discord.Object(id=guild_id))
       bot.tree.add_command(submit_answer, guild=discord.Object(id=guild_id))
       bot.tree.add_command(add_points, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(add_points_view, guild=discord.Object(id=guild_id))
       bot.tree.add_command(show_answers, guild=discord.Object(id=guild_id))
       bot.tree.add_command(show_results, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_session, guild=discord.Object(id=guild_id))
+      
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")
       

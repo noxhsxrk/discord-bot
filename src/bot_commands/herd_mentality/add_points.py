@@ -1,7 +1,7 @@
 import csv
 import discord
 import os
-from constant.config import bot, name_mapping,AUTHORIZED_USER_ID
+from constant.config import bot, name_mapping, AUTHORIZED_USER_ID
 
 @bot.tree.command(name='haddpoint', description='Add points to specified players.')
 async def add_points(interaction: discord.Interaction, names: str):
@@ -10,7 +10,7 @@ async def add_points(interaction: discord.Interaction, names: str):
         return
     
   if not os.path.exists('ScoreBoard.csv'):
-        await interaction.response.send_message("No active session to end.", ephemeral=True)
+        await interaction.response.send_message("No active session", ephemeral=True)
         return
     
   name_list = names.split(',')

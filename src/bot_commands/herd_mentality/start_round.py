@@ -2,7 +2,7 @@ import csv
 import os
 import glob
 import discord
-from constant.config import AUTHORIZED_USER_ID, lumi_members, bot, name_mapping, submitted_users
+from constant.config import AUTHORIZED_USER_ID, bot, name_mapping, submitted_users, active_lumi_members
 
 @bot.tree.command(name='hquiz', description='Start a new round with a question.')
 async def start_round(interaction: discord.Interaction, question: str):
@@ -23,12 +23,12 @@ async def start_round(interaction: discord.Interaction, question: str):
 
   with open('ScoreBoard.csv', 'a', newline='', encoding='utf-8') as csvfile:
       writer = csv.writer(csvfile)
-      writer.writerow([question] + ['' for _ in lumi_members])
+      writer.writerow([question] + ['' for _ in active_lumi_members])
 
   with open(f'AnswerBoard_{question}.csv', 'w', newline='', encoding='utf-8') as csvfile:
       writer = csv.writer(csvfile)
       writer.writerow(['player-name', 'answer'])
-      for member in lumi_members:
+      for member in active_lumi_members:
           thai_name = name_mapping.get(member['name'], member['name'])
           writer.writerow([thai_name, ''])
 
