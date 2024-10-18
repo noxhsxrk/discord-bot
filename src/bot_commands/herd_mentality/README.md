@@ -74,4 +74,4 @@ _Herd Mentality_ is a game of consensus and fun. It's perfect for parties and ga
 
 ## Footnotes
 
-[^1]: Inspired by the original board game _Herd Mentality_.
+Inspired by the original board game _Herd Mentality_.
