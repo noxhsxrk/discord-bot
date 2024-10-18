@@ -19,6 +19,7 @@ The objective of the game is to have the most points by the end of the game. Poi
 2. **Start Session**:
 
    - Using /herdmentality command, start a new session.
+   - It's optional to add 'without' parameter for players not participating in the session.
 
 3. **Start the Game**:
 
@@ -35,6 +36,7 @@ The objective of the game is to have the most points by the end of the game. Poi
 6. **Scoring**:
 
    - Moderator adds points to players using /haddpoint command.
+   - You can also add points by using /haddpointview command. This command will show buttons to add points to players.
 
 7. **Repeat**:
    - After adding points to players, moderator repeats the round using /hresult command in order to show current results.
@@ -71,7 +73,7 @@ _Herd Mentality_ is a game of consensus and fun. It's perfect for parties and ga
 - [x] Improve /haddpoint by changing from inserting player's name to using discord.ui.View.
 - [x] Improve /herdmentality to start a new session by adding a 'without' parameter for players not participating in the session.
 - [x] Add interaction for submitting answers.
-- [ ] Adding COW!!
+- [x] Adding COW!!
 
 ## Footnotes
 
