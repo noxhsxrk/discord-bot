@@ -4,3 +4,4 @@ python-dotenv
 openai==0.28.0
 langdetect
 Pillow
+cairosvg

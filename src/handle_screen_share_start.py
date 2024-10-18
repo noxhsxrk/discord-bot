@@ -11,7 +11,7 @@ async def handle_screen_share_start(voice_client, channel, member):
       print("Text channel not found.")
       return
 
-  await play_audio(voice_client, 'sounds/can-you-see-the-screen.m4a')
+  await play_audio(voice_client, 'assets/sounds/can-you-see-the-screen.m4a')
 
   member_info = next((m for m in members_names if m["id"] == member.id), None)
   name = member_info["name"] if member_info else member.display_name

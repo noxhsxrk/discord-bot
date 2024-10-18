@@ -1,9 +1,11 @@
-from bot_commands.herd_mentality.add_points_view import add_points_view
+from bot_commands.herd_mentality.cow import assign_cow
 import discord
 from discord.ext import tasks
 
 from constant.config import guild_id,token,bot
 
+from bot_commands.herd_mentality.rule import show_rules
+from bot_commands.herd_mentality.add_points_view import add_points_view
 from bot_commands.herd_mentality.add_points import add_points
 from bot_commands.herd_mentality.end_session import end_session
 from bot_commands.herd_mentality.show_answers import show_answers
@@ -37,6 +39,8 @@ async def on_ready():
       bot.tree.add_command(show_answers, guild=discord.Object(id=guild_id))
       bot.tree.add_command(show_results, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_session, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(assign_cow, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(show_rules, guild=discord.Object(id=guild_id))
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")

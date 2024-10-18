@@ -26,7 +26,6 @@ lumi_members = json.loads(os.getenv('LUMI_MEMBERS'))
 members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
 active_lumi_members = []
-
 conversation_history = defaultdict(list)
 
 def load_questions():

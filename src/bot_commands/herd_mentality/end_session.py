@@ -23,4 +23,4 @@ async def end_session(interaction: discord.Interaction):
         new_name = f"{base_name.split('.')[0]}_{timestamp}_Inactive.csv"
         os.rename(answer_board, new_name)
 
-    await interaction.response.send_message("Session ended and all boards archived.", ephemeral=True)
+    await interaction.response.send_message("Session ended, all boards archived, and pink cow holder cleared.", ephemeral=True)
