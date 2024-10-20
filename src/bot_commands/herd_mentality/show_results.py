@@ -18,63 +18,67 @@ def svg_to_png(svg_file, size=(20, 20)):
     return Image.open(io.BytesIO(png_data))
 
 def generate_result_image(questions):
-    num_columns = len(questions[0])
-    num_rows = len(questions)
-    cell_width = 100
-    cell_height = 40
-    width = cell_width * num_columns
-    height = cell_height * num_rows
-    background_color = (255, 255, 255)
-    line_color = (0, 0, 0)
-    text_color = (0, 0, 0)
-    green_color = (0, 128, 0)
-    red_color = (255, 0, 0)
-    cow_holder_color = (255, 105, 180)
+  max_first_col_width = max(len(row[0]) for row in questions) * 8
+  num_columns = len(questions[0])
+  num_rows = len(questions)
+  
+  cell_widths = [max_first_col_width] + [100] * (num_columns - 1)
+  cell_height = 40
+  width = sum(cell_widths)
+  height = cell_height * num_rows
+  background_color = (255, 255, 255)
+  line_color = (0, 0, 0)
+  text_color = (0, 0, 0)
+  green_color = (0, 128, 0)
+  red_color = (255, 0, 0)
+  cow_holder_color = (255, 105, 180)
 
-    cow_image = svg_to_png('assets/images/cow.svg', size=(20, 20))
+  cow_image = svg_to_png('assets/images/cow.svg', size=(20, 20))
 
-    image = Image.new('RGB', (width, height), background_color)
-    draw = ImageDraw.Draw(image)
+  image = Image.new('RGB', (width, height), background_color)
+  draw = ImageDraw.Draw(image)
 
-    try:
-        font = ImageFont.truetype("THSarabunNew.ttf", 20)
-    except IOError:
-        print("Font not found. Using default font.")
-        font = ImageFont.load_default()
+  try:
+      font = ImageFont.truetype("THSarabunNew.ttf", 20)
+  except IOError:
+      font = ImageFont.load_default()
 
-    for i in range(num_columns + 1):
-        x = i * cell_width
-        draw.line([(x, 0), (x, height)], fill=line_color)
+  x_offset = 0
+  for cell_width in cell_widths:
+      draw.line([(x_offset, 0), (x_offset, height)], fill=line_color)
+      x_offset += cell_width
 
-    for i in range(num_rows + 1):
-        y = i * cell_height
-        draw.line([(0, y), (width, y)], fill=line_color)
+  for i in range(num_rows + 1):
+      y = i * cell_height
+      draw.line([(0, y), (width, y)], fill=line_color)
 
-    result_row = questions[-1]
-    max_score = max(int(score) for score in result_row[1:] if score.isdigit())
+  result_row = questions[-1]
+  max_score = max(int(score) for score in result_row[1:] if score.isdigit())
 
-    pink_cow_holder = read_cow_holder_from_file()
+  pink_cow_holder = read_cow_holder_from_file()
 
-    for row_index, row in enumerate(questions):
-        for col_index, cell in enumerate(row):
-            x_offset = col_index * cell_width + 10
-            y_offset = row_index * cell_height + 10
+  for row_index, row in enumerate(questions):
+      x_offset = 0
+      for col_index, cell in enumerate(row):
+          y_offset = row_index * cell_height + 10
 
-            if row_index == len(questions) - 1:
-                if cell.isdigit() and int(cell) == max_score and col_index != 0:
-                    draw.text((x_offset, y_offset), str(cell), fill=red_color, font=font)
-                else:
-                    draw.text((x_offset, y_offset), str(cell), fill=text_color, font=font)
-            elif cell == '1':
-                draw.text((x_offset, y_offset), str(cell), fill=green_color, font=font)
-            else:
-                if row_index == 0 and questions[0][col_index] == pink_cow_holder:
-                    draw.text((x_offset, y_offset), str(cell), fill=cow_holder_color, font=font)
-                    image.paste(cow_image, (x_offset + 30, y_offset), cow_image)
-                else:
-                    draw.text((x_offset, y_offset), str(cell), fill=text_color, font=font)
+          if row_index == len(questions) - 1:
+              if cell.isdigit() and int(cell) == max_score and col_index != 0:
+                  draw.text((x_offset + 10, y_offset), str(cell), fill=red_color, font=font)
+              else:
+                  draw.text((x_offset + 10, y_offset), str(cell), fill=text_color, font=font)
+          elif cell == '1':
+              draw.text((x_offset + 10, y_offset), str(cell), fill=green_color, font=font)
+          else:
+              if row_index == 0 and questions[0][col_index] == pink_cow_holder:
+                  draw.text((x_offset + 10, y_offset), str(cell), fill=cow_holder_color, font=font)
+                  image.paste(cow_image, (x_offset + 30, y_offset), cow_image)
+              else:
+                  draw.text((x_offset + 10, y_offset), str(cell), fill=text_color, font=font)
 
-    image.save('result.png')
+          x_offset += cell_widths[col_index]
+
+  image.save('result.png')
 
 @bot.tree.command(name='hresult', description='Show current results and end the round.')
 async def show_results(interaction: discord.Interaction):
