@@ -14,9 +14,8 @@ class WordSelectionView(discord.ui.View):
         self.regenerate_callback = regenerate_callback
 
         for word in words:
-            truncated_word = word[:80]
-            button = discord.ui.Button(label=truncated_word, custom_id=truncated_word)
-            button.callback = self.create_callback(truncated_word)
+            button = discord.ui.Button(label=word, custom_id=word)
+            button.callback = self.create_callback(word)
             self.add_item(button)
 
         regenerate_button = discord.ui.Button(
@@ -45,7 +44,7 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
     
     active_sessions = [f for f in os.listdir() if f.startswith('insider_session_') and f.endswith('_active.log')]
     if active_sessions:
-        await interaction.followup.send("มีเกม Insider ที่มีการเริ่มต้นอยู่แล้ว กรุณาสิ้นสุดก่อนที่จะเริ่มเกมใหม่ โดยใช้คำสั่ง /end-insider", ephemeral=True)
+        await interaction.followup.send("An Insider session is already active. Please end it before starting a new one.", ephemeral=True)
         return
 
     if not active_lumi_members:
@@ -72,16 +71,15 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
         response = ollama.generate(model='llama3.2', prompt=prompt)
         words = response['response'].strip().split(',')
         view = WordSelectionView(words, regenerate_callback=regenerate_words)
-
-        await interaction.followup.edit_message(interaction.message.id, content="เลือกคำศัพท์สำหรับเกม:", view=view)
+        await interaction.response.edit_message(content="Please pick a word for the game:", view=view)
 
     view = WordSelectionView(words, regenerate_callback=regenerate_words)
-    await interaction.followup.send("เลือกคำศัพท์สำหรับเกม:", view=view, ephemeral=True)
+    await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
 
     await view.wait()
 
     if view.selected_word is None:
-        await interaction.followup.send("คุณไม่ได้เลือกคำศัพท์ในระยะเวลาที่กำหนด กรุณาลองใหม่อีกครั้ง", ephemeral=True)
+        await interaction.followup.send("You took too long to respond. Please try again.", ephemeral=True)
         return
 
     word = view.selected_word
