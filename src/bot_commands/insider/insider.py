@@ -14,8 +14,9 @@ class WordSelectionView(discord.ui.View):
         self.regenerate_callback = regenerate_callback
 
         for word in words:
-            button = discord.ui.Button(label=word, custom_id=word)
-            button.callback = self.create_callback(word)
+            truncated_word = word[:80]
+            button = discord.ui.Button(label=truncated_word, custom_id=truncated_word)
+            button.callback = self.create_callback(truncated_word)
             self.add_item(button)
 
         regenerate_button = discord.ui.Button(
@@ -54,24 +55,36 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
     selected_member = random.choice(active_lumi_members)
     selected_member_name = name_mapping.get(selected_member['name'], selected_member['name'])
 
-    prompt = f"Generate 10 Thai nouns separated by commas without spaces where:\n\n" \
-                "Words can be Extremely common, everyday objects/items that everyone knows and uses\n" \
-                "or Common items but slightly more specific\n" \
-                "or Moderately specific items or concepts\n" \
-                "or Specialized or less common items\n" \
-                "or Rare, technical, or highly specific items\n" \
-                "or Well-known characters from popular movies or anime that most people would recognize\n\n" \
-                "The words should be suitable for a group game where one person needs to guess them through yes/no questions like in the Insider board game.\n\n" \
-                "Just give me the words in Thai separated by commas without spaces, no other explanation. No special characters except commas."
+    prompt = (
+        "Generate 10 Thai nouns in the Thai language. If they are romanized, convert them to Thai script. "
+        "Separate each word with a comma, without spaces. The words can be:\n"
+        "- Extremely common, everyday objects or items\n"
+        "- Common items but slightly more specific\n"
+        "- Moderately specific items or concepts\n"
+        "- Specialized or less common items\n"
+        "- Rare, technical, or highly specific items\n"
+        "- Well-known characters from popular movies or anime\n"
+        "- Famous tourist destinations, especially in Thailand\n"
+        "- Specific names of food or other items\n"
+        "- Anything on Earth or beyond, within this universe\n\n"
+        "The words should be suitable for a group game where one person guesses them through yes/no questions, "
+        "like in the Insider board game.\n\n"
+        "Provide only the words, with no additional explanation or special characters except commas."
+    )
 
     response = ollama.generate(model='llama3.2', prompt=prompt)
     words = response['response'].strip().split(',')
 
     async def regenerate_words(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         response = ollama.generate(model='llama3.2', prompt=prompt)
         words = response['response'].strip().split(',')
         view = WordSelectionView(words, regenerate_callback=regenerate_words)
-        await interaction.response.edit_message(content="Please pick a word for the game:", view=view)
+        
+        if interaction.response.is_done():
+            await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
+        else:
+            await interaction.response.edit_message(content="Please pick a word for the game:", view=view)
 
     view = WordSelectionView(words, regenerate_callback=regenerate_words)
     await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
