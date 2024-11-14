@@ -43,7 +43,6 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
 
     excluded_names = set(name.strip() for name in without.split(',')) if without else set()
     active_lumi_members[:] = [member for member in lumi_members if member['name'] not in excluded_names]
-    print(active_lumi_members)
     
     active_sessions = [f for f in os.listdir() if f.startswith('insider_session_') and f.endswith('_active.log')]
     if active_sessions:
@@ -127,4 +126,4 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
         new_name = session_file.replace("_active.log", "_deactive.log")
         os.rename(session_file, new_name)
 
-    await interaction.channel.send("หมดเวลาแล้วครับ", ephemeral=True)
+    await interaction.channel.send("หมดเวลาแล้วครับ")
