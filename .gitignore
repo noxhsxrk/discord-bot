@@ -12,3 +12,5 @@ Makefile
 discord_bot.sh
 generated_words.log
 insider_session_*
+insider.log
+words.txt
