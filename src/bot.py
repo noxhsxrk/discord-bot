@@ -5,7 +5,7 @@ from discord.ext import tasks
 from constant.config import guild_id,token,bot
 
 from bot_commands.insider.end_insider import end_insider
-from bot_commands.insider.insider import start_insider
+from bot_commands.insider.insider import insider_command
 from bot_commands.herd_mentality.rule import show_rules
 from bot_commands.herd_mentality.add_points_view import add_points_view
 from bot_commands.herd_mentality.add_points import add_points
@@ -45,7 +45,7 @@ async def on_ready():
       bot.tree.add_command(show_rules, guild=discord.Object(id=guild_id))
       
       #for Insider
-      bot.tree.add_command(start_insider, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(insider_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_insider, guild=discord.Object(id=guild_id))
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
