@@ -36,7 +36,7 @@ class WordSelectionView(discord.ui.View):
         return callback
 
 @bot.tree.command(name='insider', description='Start a new Insider game session.')
-async def start_insider(interaction: discord.Interaction, without: str = None, show_insider: bool = True, minutes: int = 10):
+async def start_insider(interaction: discord.Interaction, without: str = None, show_insider: bool = True, minutes: int = 10, custom_word: str = None):
     global active_lumi_members, session_starter_id
 
     await interaction.response.defer(ephemeral=True)
@@ -56,47 +56,50 @@ async def start_insider(interaction: discord.Interaction, without: str = None, s
     selected_member = random.choice(active_lumi_members)
     selected_member_name = name_mapping.get(selected_member['name'], selected_member['name'])
 
-    prompt = (
-        "Generate 10 Thai nouns in the Thai language. If they are romanized, convert them to Thai script. "
-        "Separate each word with a comma, without spaces. The words can be:\n"
-        "- Extremely common, everyday objects or items\n"
-        "- Common items but slightly more specific\n"
-        "- Moderately specific items or concepts\n"
-        "- Specialized or less common items\n"
-        "- Rare, technical, or highly specific items\n"
-        "- Well-known characters from popular movies or anime\n"
-        "- Famous tourist destinations, especially in Thailand\n"
-        "- Specific names of food or other items\n"
-        "- Anything on Earth or beyond, within this universe\n\n"
-        "The words should be suitable for a group game where one person guesses them through yes/no questions, "
-        "like in the Insider board game.\n\n"
-        "Provide only the words, with no additional explanation or special characters except commas."
-    )
+    if custom_word:
+        word = custom_word
+    else:
+        prompt = (
+            "Generate 10 Thai nouns in the Thai language. If they are romanized, convert them to Thai script. "
+            "Separate each word with a comma, without spaces. The words can be:\n"
+            "- Extremely common, everyday objects or items\n"
+            "- Common items but slightly more specific\n"
+            "- Moderately specific items or concepts\n"
+            "- Specialized or less common items\n"
+            "- Rare, technical, or highly specific items\n"
+            "- Well-known characters from popular movies or anime\n"
+            "- Famous tourist destinations, especially in Thailand\n"
+            "- Specific names of food or other items\n"
+            "- Anything on Earth or beyond, within this universe\n\n"
+            "The words should be suitable for a group game where one person guesses them through yes/no questions, "
+            "like in the Insider board game.\n\n"
+            "Provide only the words, with no additional explanation or special characters except commas."
+        )
 
-    response = ollama.generate(model='llama3.2', prompt=prompt)
-    words = response['response'].strip().split(',')
-
-    async def regenerate_words(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
         response = ollama.generate(model='llama3.2', prompt=prompt)
         words = response['response'].strip().split(',')
+
+        async def regenerate_words(interaction: discord.Interaction):
+            await interaction.response.defer(ephemeral=True)
+            response = ollama.generate(model='llama3.2', prompt=prompt)
+            words = response['response'].strip().split(',')
+            view = WordSelectionView(words, regenerate_callback=regenerate_words)
+            
+            if interaction.response.is_done():
+                await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
+            else:
+                await interaction.response.edit_message(content="Please pick a word for the game:", view=view)
+
         view = WordSelectionView(words, regenerate_callback=regenerate_words)
-        
-        if interaction.response.is_done():
-            await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
-        else:
-            await interaction.response.edit_message(content="Please pick a word for the game:", view=view)
+        await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
 
-    view = WordSelectionView(words, regenerate_callback=regenerate_words)
-    await interaction.followup.send("Please pick a word for the game:", view=view, ephemeral=True)
+        await view.wait()
 
-    await view.wait()
+        if view.selected_word is None:
+            await interaction.followup.send("You took too long to respond. Please try again.", ephemeral=True)
+            return
 
-    if view.selected_word is None:
-        await interaction.followup.send("You took too long to respond. Please try again.", ephemeral=True)
-        return
-
-    word = view.selected_word
+        word = view.selected_word
 
     session_file_path = get_session_file_path(interaction.user.id, selected_member_name, word)
 
