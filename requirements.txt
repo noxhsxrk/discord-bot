@@ -6,3 +6,5 @@ langdetect
 Pillow
 cairosvg
 ollama
+colorama
+tabulate

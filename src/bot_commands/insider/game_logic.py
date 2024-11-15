@@ -10,6 +10,11 @@ from .file_utils import (
 )
 from .views import WordSelectionView, CountdownView
 from .constants import INSIDER_DIRECTORY, WORDS_FILE, USED_WORD_FILE, MIN_AVAILABLE_WORDS
+import colorama
+from colorama import Fore, Style
+from tabulate import tabulate
+
+colorama.init(autoreset=True)
 
 async def start_insider(interaction: discord.Interaction, without: str = None, hide_insider: bool = True, minutes: int = 1, custom_word: str = None, use_file_words: bool = False):
     global active_lumi_members, session_starter_id
@@ -151,11 +156,26 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
         remaining_minutes, remaining_seconds = divmod(remaining, 60)
         embed.description = f"เวลาที่เหลือ: {remaining_minutes} นาที {remaining_seconds} วินาที"
         await countdown_message.edit(embed=embed)
+        log_game_state(word, selected_member_name, hide_insider, f"{remaining_minutes} นาที {remaining_seconds} วินาที")
 
     update_session_files()
     log_insider_selection(selected_member_name, word)
+    log_game_state(word, selected_member_name, hide_insider, "0 นาที 0 วินาที")
 
     if not view.stop_timer:
         await interaction.channel.send("หมดเวลาแล้วครับ")
     else:
         await interaction.channel.send("จบเกมแล้วครับ")
+
+def log_game_state(word, insider_name, hide_insider, time_left):
+    display_insider_name = "******" if hide_insider else insider_name
+
+    data = [
+        ["Guessing Word", word],
+        ["Insider", display_insider_name],
+        ["Time Left", time_left]
+    ]
+
+    table = tabulate(data, headers=["", ""], tablefmt="grid")
+
+    print(Fore.BLUE + table)

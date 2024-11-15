@@ -1,11 +1,18 @@
-from bot_commands.herd_mentality.cow import assign_cow
 import discord
-from discord.ext import tasks
-
 from constant.config import guild_id,token,bot
+
+from bot_commands.just_one.rule import jshow_rules
+from bot_commands.just_one.end_session import jend_command
+from bot_commands.just_one.just_one import just1_command
+from bot_commands.just_one.remove_clue import jremove_command
+from bot_commands.just_one.review_clue import jreview_command
+from bot_commands.just_one.show_clue import jshow_clue_command
+from bot_commands.just_one.submit_clue import ja_command
 
 from bot_commands.insider.end_insider import end_insider
 from bot_commands.insider.insider import insider_command
+
+from bot_commands.herd_mentality.cow import assign_cow
 from bot_commands.herd_mentality.rule import show_rules
 from bot_commands.herd_mentality.add_points_view import add_points_view
 from bot_commands.herd_mentality.add_points import add_points
@@ -15,6 +22,7 @@ from bot_commands.herd_mentality.show_results import show_results
 from bot_commands.herd_mentality.start_round import start_round
 from bot_commands.herd_mentality.submit_answer import submit_answer
 from bot_commands.herd_mentality.start_session import start_session
+
 from bot_commands.oat import oat
 from bot_commands.question import question
 
@@ -47,6 +55,15 @@ async def on_ready():
       #for Insider
       bot.tree.add_command(insider_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_insider, guild=discord.Object(id=guild_id))
+      
+      #for Just One
+      bot.tree.add_command(just1_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jremove_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jend_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jreview_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(ja_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jshow_clue_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jshow_rules, guild=discord.Object(id=guild_id))
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")

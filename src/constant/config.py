@@ -1,6 +1,4 @@
-import asyncio
 from collections import defaultdict
-import csv
 from datetime import datetime, timedelta, timezone
 import json
 import os
@@ -50,5 +48,7 @@ name_mapping = {
     "beer": "เบียร์",
     "faii": "ฝ้าย",
     "o": "โอ",
-    "n": "อ้น"
+    "n": "อ้น",
+    "nn": "อ้นน",
+    "nnn": "อ้นนน"
 }
