@@ -14,7 +14,8 @@ from .constants import INSIDER_DIRECTORY, WORDS_FILE, USED_WORD_FILE, MIN_AVAILA
 async def start_insider(interaction: discord.Interaction, without: str = None, hide_insider: bool = True, minutes: int = 1, custom_word: str = None, use_file_words: bool = False):
     global active_lumi_members, session_starter_id
 
-    await interaction.response.defer(ephemeral=True)
+    if not interaction.response.is_done():
+        await interaction.response.defer(ephemeral=True)
 
     def get_excluded_names():
         excluded = set(name.strip() for name in without.split(',')) if without else set()
@@ -99,7 +100,6 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
         return view.selected_word
 
     async def regenerate_words(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
         words, error_message = get_words()
         if error_message:
             await interaction.followup.send(error_message, ephemeral=True)
