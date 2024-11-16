@@ -16,6 +16,7 @@ remove_duplicates() {
     if [ -s removed_words.txt ]; then
         echo "Removed words:"
         cat removed_words.txt
+        echo "Duplicates removed in the file: $file"
     else
         echo "No words were removed from the file: $file"
     fi
