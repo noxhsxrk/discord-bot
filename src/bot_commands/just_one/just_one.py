@@ -59,7 +59,7 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
             ]
             
 
-            words = get_words_from_file('src/bot_commands/just_one/words.txt')
+            words = get_words_from_file('src/constant/words.txt')
             used_words = get_used_words('src/bot_commands/just_one/used_words.txt')
             available_words = list(set(words) - used_words)
 
