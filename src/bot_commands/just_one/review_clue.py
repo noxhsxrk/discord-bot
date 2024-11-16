@@ -10,7 +10,7 @@ async def jreview_command(interaction: discord.Interaction):
         await interaction.response.send_message("No active session. Please start a session first.", ephemeral=True)
         return
 
-    with open('clues.csv', 'r', newline='', encoding='utf-8') as csvfile:
+    with open('src/bot_commands/just_one/clues.csv', 'r', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         clues = list(reader)
 

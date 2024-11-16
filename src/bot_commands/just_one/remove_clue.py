@@ -12,7 +12,7 @@ async def jremove_command(interaction: discord.Interaction, names: str):
     names_to_remove = set(names.split(','))
     current_session["clues"] = {name: clue for name, clue in current_session["clues"].items() if name not in names_to_remove}
 
-    with open('clues.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    with open('src/bot_commands/just_one/clues.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         for name, clue in current_session["clues"].items():
             writer.writerow([name, clue])
