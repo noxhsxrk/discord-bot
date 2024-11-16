@@ -17,7 +17,5 @@ async def jremove_command(interaction: discord.Interaction, names: str):
         for name, clue in current_session["clues"].items():
             writer.writerow([name, clue])
 
-    log_game_state("Guessing", current_session["clues"], current_session["active_player"], removed_clues=names_to_remove)
-
     await interaction.response.send_message(f"Removed clues from: {', '.join(names_to_remove)}", ephemeral=True)
     

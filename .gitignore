@@ -15,3 +15,5 @@ insider_session_*
 insider.log
 words.txt
 used_word.txt
+used_words.txt
+clues.csv

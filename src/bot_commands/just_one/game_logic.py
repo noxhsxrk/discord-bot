@@ -10,24 +10,6 @@ current_session = {
     "word": None
 }
 
-def start_new_session(active_player_name):
-    global current_session
-    current_session = {
-        "active_player": active_player_name,
-        "clues": {},
-        "word": None
-    }
-
-def end_session():
-    global current_session
-    current_session = {
-        "active_player": None,
-        "clues": {},
-        "word": None
-    }
-    log_game_state("Ended", current_session["clues"], current_session["active_player"])
-    
-
 colorama.init(autoreset=True)
 
 def log_game_state(state, clues, active_player, removed_clues=None):
