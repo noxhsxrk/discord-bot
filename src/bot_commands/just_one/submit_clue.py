@@ -7,7 +7,7 @@ import csv
 @bot.tree.command(name='ja', description='Submit a clue word.')
 async def ja_command(interaction: discord.Interaction, clue: str):
     if current_session["active_player"] is None:
-        # await interaction.response.send_message("No active session. Please start a session first.", ephemeral=True)
+        await interaction.response.send_message("No active session. Please start a session first.", ephemeral=True)
         return
 
     submitter_name = next((member['name'] for member in active_lumi_members if member['id'] == interaction.user.id), interaction.user.name)
