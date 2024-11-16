@@ -39,7 +39,7 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
    - Create a `.env` file in the root directory.
    - Add the following variables:
 
-     ```
+     ```env
      TOKEN=your_discord_bot_token
      GUILD_ID=your_guild_id
      OPENAI_API_KEY=your_openai_api_key
@@ -61,7 +61,7 @@ This is a Discord bot built using Python and the `discord.py` library. The bot i
 
 - **Running the Bot**: Start the bot by executing the main script.
 
-  ```
+  ```python
   python bot.py
   ```
 
