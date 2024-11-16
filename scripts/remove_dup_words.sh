@@ -23,6 +23,7 @@ remove_duplicates() {
 
     mv "$temp_file" "$file"
     rm "$original_sorted"
+    rm removed_words.txt
 }
 
 remove_duplicates "$file1"
