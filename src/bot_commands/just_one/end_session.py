@@ -1,5 +1,6 @@
 import discord
-from constant.config import bot, current_session, log_game_state
+from constant.config import bot
+from .game_logic import current_session, log_game_state
 import os   
 
 @bot.tree.command(name='jend', description='End the current Just One game session.')

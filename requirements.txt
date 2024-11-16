@@ -8,3 +8,4 @@ cairosvg
 ollama
 colorama
 tabulate
+dearpygui
