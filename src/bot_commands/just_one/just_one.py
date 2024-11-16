@@ -1,7 +1,9 @@
+import os
 import random
 import discord
-from .game_logic import current_session, log_game_state
-from constant.config import bot, active_lumi_members, lumi_members, name_mapping
+from discord.ui import View, Select
+from .game_logic import current_session, log_game_state, players
+from constant.config import bot, members_names
 
 def get_words_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -19,42 +21,63 @@ def add_word_to_used(file_path, word):
         file.write(f"{word}\n")
 
 @bot.tree.command(name='just1', description='Start a new Just One game session.')
-async def just1_command(interaction: discord.Interaction, active_player: str, without: str = None):
-    print("current_session",current_session)
-    if current_session["active_player"] is not None:
-        # await interaction.response.send_message("A session is already active. Please end it before starting a new one.", ephemeral=True)
+async def just1_command(interaction: discord.Interaction, without: str = None):
+    if os.path.exists('src/bot_commands/just_one/clues.csv'):
+        os.remove('src/bot_commands/just_one/clues.csv')
+        
+    if current_session["guesser"] is not None:
+        await interaction.response.send_message("A session is already active. Please end it before starting a new one.", ephemeral=True)
         return
 
-    mapped_active_player_name = name_mapping.get(active_player)
-    print(mapped_active_player_name)
-    if not mapped_active_player_name:
-        await interaction.response.send_message(f"Player '{active_player}' not found.", ephemeral=True)
-        return
-    
-    print("mapped_active_player_name",mapped_active_player_name)
+    channel_members = interaction.channel.members
+    player_options = [
+        discord.SelectOption(
+            label=next((m['name'] for m in members_names if m['id'] == member.id), member.name),
+            value=next((m['name'] for m in members_names if m['id'] == member.id), member.name),
+        )
+        for member in channel_members
+        if member.name not in (without.split(',') if without else [])
+    ]
 
-    excluded_names = set(name.strip() for name in without.split(',')) if without else set()
-    excluded_names.add(active_player)
-    active_lumi_members[:] = [member for member in lumi_members if member['name'] not in excluded_names]
-
-    words = get_words_from_file('src/bot_commands/just_one/words.txt')
-    used_words = get_used_words('src/bot_commands/just_one/used_words.txt')
-    available_words = list(set(words) - used_words)
-
-    if not available_words:
-        await interaction.response.send_message("No more words available. Please reset the used words list.", ephemeral=True)
-        return
-
-    selected_word = random.choice(available_words)
-    current_session["word"] = selected_word
-    add_word_to_used('src/bot_commands/just_one/used_words.txt', selected_word)
-
-    for member in active_lumi_members:
-        if member['name'] != mapped_active_player_name:
-            print()
-            # user = await bot.fetch_user(member['id'])
-            # await user.send(f"The word to guess is: {selected_word}")
+    class PlayerSelectView(View):
+        @discord.ui.select(placeholder="Choose the active player", options=player_options)
+        async def select_callback(self, interaction: discord.Interaction, select: Select):
+            guesser = select.values[0]
+            mapped_guesser = next((member['name'] for member in members_names if member['name'] == guesser), None)
             
-    current_session["active_player"] = active_player
-    log_game_state("Started", current_session["clues"], mapped_active_player_name)
-    await interaction.response.send_message(f"Game started! {mapped_active_player_name} is the active player.", ephemeral=True)
+            if not mapped_guesser:
+                await interaction.response.send_message(f"Player '{guesser}' not found.", ephemeral=True)
+                return
+
+            players[:] = [
+                {
+                    "id": member.id,
+                    "name": next((m['name'] for m in members_names if m['id'] == member.id), member.name)
+                }
+                for member in channel_members
+                if member.name not in (without.split(',') if without else []) and member.name != guesser
+            ]
+            
+
+            words = get_words_from_file('src/bot_commands/just_one/words.txt')
+            used_words = get_used_words('src/bot_commands/just_one/used_words.txt')
+            available_words = list(set(words) - used_words)
+
+            if not available_words:
+                await interaction.response.send_message("No more words available. Please reset the used words list.", ephemeral=True)
+                return
+
+            selected_word = random.choice(available_words)
+            current_session["word"] = selected_word
+            add_word_to_used('src/bot_commands/just_one/used_words.txt', selected_word)
+            
+            for member in players:
+                if member['name'] != mapped_guesser:
+                    user = await bot.fetch_user(member['id'])
+                    await user.send(f"The word to guess is: {selected_word}")
+
+            current_session["guesser"] = mapped_guesser
+            log_game_state("Started", current_session["clues"], mapped_guesser)
+            await interaction.response.send_message(f"Game started! {mapped_guesser} is the guesser.", ephemeral=True)
+
+    await interaction.response.send_message("Select the guesser:", view=PlayerSelectView(), ephemeral=True)

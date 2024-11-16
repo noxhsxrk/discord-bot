@@ -3,7 +3,7 @@ import random
 import asyncio
 import discord
 import ollama
-from constant.config import bot, active_lumi_members, lumi_members, name_mapping
+from constant.config import bot, members_names
 from .file_utils import (
     get_session_file_path, log_insider_selection, get_insider_selection_counts,
     get_words_from_file, get_used_words, write_used_word
@@ -17,7 +17,7 @@ from tabulate import tabulate
 colorama.init(autoreset=True)
 
 async def start_insider(interaction: discord.Interaction, without: str = None, hide_insider: bool = True, minutes: int = 1, custom_word: str = None, use_file_words: bool = False):
-    global active_lumi_members, session_starter_id
+    global session_starter_id
 
     if not interaction.response.is_done():
         await interaction.response.defer(ephemeral=True)
@@ -27,18 +27,19 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
         excluded.add(interaction.user.name)
         return excluded
 
-    def get_weighted_members():
-        insider_counts = get_insider_selection_counts()
-        total_selections = sum(insider_counts.values())
-        weights = {
-            member['name']: (total_selections - insider_counts.get(name_mapping.get(member['name'], member['name']), 0) + 1)
-            for member in active_lumi_members
-        }
-        total_weight = sum(weights.values())
-        normalized_weights = {name: weight / total_weight for name, weight in weights.items()}
+    async def get_active_members():
+        channel = interaction.channel
+        if isinstance(channel, discord.TextChannel):
+            members = await channel.fetch_members().flatten()
+        elif isinstance(channel, discord.VoiceChannel):
+            members = channel.members
+        else:
+            return []
+
         return [
-            member for member in active_lumi_members
-            for _ in range(int(normalized_weights[member['name']] * 100))
+            {'id': member.id, 'name': member.name}
+            for member in members
+            if member.name not in get_excluded_names()
         ]
 
     def get_words():
@@ -110,35 +111,37 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
             await interaction.followup.send(error_message, ephemeral=True)
             return
 
-        word = handle_word_selection(words)
+        word = await handle_word_selection(words)
         if word and use_file_words:
             write_used_word(os.path.join(INSIDER_DIRECTORY, USED_WORD_FILE), word)
 
         return word
 
-    excluded_names = get_excluded_names()
-    active_lumi_members[:] = [member for member in lumi_members if member['name'] not in excluded_names]
+    active_members = await get_active_members()
+    if not active_members:
+        await interaction.followup.send("ไม่มีสมาชิกที่ใช้งานอยู่เพื่อเริ่มเกม", ephemeral=True)
+        return
 
     active_sessions = [f for f in os.listdir() if f.startswith('insider_session_') and f.endswith('_active.log')]
     if active_sessions:
         await interaction.followup.send("มีการเริ่มเกม Insider อยู่แล้ว กรุณาจบเกมก่อนเริ่มใหม่", ephemeral=True)
         return
 
-    weighted_members = get_weighted_members()
-    if not weighted_members:
-        await interaction.followup.send("ไม่มีสมาชิกที่ใช้งานอยู่เพื่อเริ่มเกม", ephemeral=True)
-        return
+    def get_member_name(member_id):
+        for member in members_names:
+            if member['id'] == member_id:
+                return member['name']
+        return None
 
-    selected_member = random.choice(weighted_members)
-    selected_member_name = name_mapping.get(selected_member['name'], selected_member['name'])
+    selected_member = random.choice(active_members)
+    selected_member_name = get_member_name(selected_member['id']) or selected_member['name']
 
     word = custom_word or await regenerate_words(interaction)
     if not word:
         return
 
     create_session_file(selected_member_name, word)
-    # user = await bot.fetch_user(selected_member['id'])
-    user = await bot.fetch_user(interaction.user.id)
+    user = await bot.fetch_user(selected_member['id'])
     await send_insider_message(user, word)
     await send_game_start_message(selected_member_name, word)
 
@@ -179,3 +182,5 @@ def log_game_state(word, insider_name, hide_insider, time_left):
     table = tabulate(data, headers=["", ""], tablefmt="grid")
 
     print(Fore.BLUE + table)
+
+    log_game_state.last_table = table

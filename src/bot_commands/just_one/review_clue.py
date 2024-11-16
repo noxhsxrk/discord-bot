@@ -1,12 +1,12 @@
 import discord
-from .game_logic import current_session
-from constant.config import bot, active_lumi_members, name_mapping
+from .game_logic import current_session, players
+from constant.config import bot, lumi_members
 
 import csv
 
 @bot.tree.command(name='jreview-clue', description='Send clues to players for review.')
 async def jreview_command(interaction: discord.Interaction):
-    if current_session["active_player"] is None:
+    if current_session["guesser"] is None:
         await interaction.response.send_message("No active session. Please start a session first.", ephemeral=True)
         return
 
@@ -14,10 +14,10 @@ async def jreview_command(interaction: discord.Interaction):
         reader = csv.reader(csvfile)
         clues = list(reader)
 
-    clues_message = "\n".join([f"{name_mapping.get(name, name)}: {clue}" for name, clue in clues])
+    clues_message = "\n".join([f"{next((member['name'] for member in lumi_members if member['id'] == name), name)}: {clue}" for name, clue in clues])
 
-    for member in active_lumi_members:  
-        if member['name'] != current_session["active_player"]:
+    for member in players:  
+        if member['name'] != current_session["guesser"]:
             user = await bot.fetch_user(member['id'])
             await user.send(f"Review the clues:\n{clues_message}")
 
