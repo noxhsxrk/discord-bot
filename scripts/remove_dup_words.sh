@@ -1,7 +1,6 @@
 #!/bin/bash
 
-file1="src/bot_commands/insider/words.txt"
-file2="src/bot_commands/just_one/words.txt"
+file1="src/bot_commands/game/words.txt"
 
 remove_duplicates() {
     local file="$1"
@@ -27,4 +26,3 @@ remove_duplicates() {
 }
 
 remove_duplicates "$file1"
-remove_duplicates "$file2"

@@ -49,7 +49,7 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
             return generate_words_with_ollama()
 
     def get_words_from_file_system():
-        all_words = get_words_from_file(os.path.join(INSIDER_DIRECTORY, WORDS_FILE))
+        all_words = get_words_from_file(WORDS_FILE)
         used_words = get_used_words(os.path.join(INSIDER_DIRECTORY, USED_WORD_FILE))
         available_words = list(set(all_words) - used_words)
         if len(available_words) < MIN_AVAILABLE_WORDS:

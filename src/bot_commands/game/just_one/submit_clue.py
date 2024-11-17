@@ -26,7 +26,7 @@ async def ja_command(interaction: discord.Interaction, clue: str):
     current_session["clues"][submitter_name] = clue
     log_game_state("Started", current_session["clues"], current_session["guesser"])
 
-    with open('src/bot_commands/just_one/clues.csv', 'a', newline='', encoding='utf-8') as csvfile:
+    with open('src/bot_commands/game/just_one/clues.csv', 'a', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow([submitter_name, clue])
 

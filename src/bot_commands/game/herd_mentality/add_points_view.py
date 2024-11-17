@@ -25,7 +25,7 @@ class PointsView(discord.ui.View):
           await interaction.response.send_message(f"เพิ่มแต้มให้กับ: **{name}** 1 แต้ม เย่ๆ")
       return callback
 
-@bot.tree.command(name='haddpointview', description='Add points to specified players.')
+@bot.tree.command(name='haddpoint', description='Add points to specified players.')
 async def add_points_view(interaction: discord.Interaction):
   if interaction.user.id != AUTHORIZED_USER_ID:
       await interaction.response.send_message("You are not authorized to add a point.", ephemeral=True)

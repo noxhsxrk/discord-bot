@@ -1,27 +1,28 @@
 import discord
 from constant.config import guild_id,token,bot
 
-from bot_commands.just_one.rule import jshow_rules
-from bot_commands.just_one.end_session import jend_command
-from bot_commands.just_one.just_one import just1_command
-from bot_commands.just_one.remove_clue import jremove_command
-from bot_commands.just_one.review_clue import jreview_command
-from bot_commands.just_one.show_clue import jshow_clue_command
-from bot_commands.just_one.submit_clue import ja_command
+from bot_commands.game.insider.insider import insider_command
+from bot_commands.game.insider.end_insider import end_insider
 
-from bot_commands.insider.end_insider import end_insider
-from bot_commands.insider.insider import insider_command
+from bot_commands.game.just_one.just_one import just1_command
+from bot_commands.game.just_one.end_session import jend_command
+from bot_commands.game.just_one.remove_clue import jremove_command
+from bot_commands.game.just_one.review_clue import jreview_command
+from bot_commands.game.just_one.show_clue import jshow_clue_command
+from bot_commands.game.just_one.submit_clue import ja_command
+from bot_commands.game.just_one.rule import jshow_rules
 
-from bot_commands.herd_mentality.cow import assign_cow
-from bot_commands.herd_mentality.rule import show_rules
-from bot_commands.herd_mentality.add_points_view import add_points_view
-from bot_commands.herd_mentality.add_points import add_points
-from bot_commands.herd_mentality.end_session import end_session
-from bot_commands.herd_mentality.show_answers import show_answers
-from bot_commands.herd_mentality.show_results import show_results
-from bot_commands.herd_mentality.start_round import start_round
-from bot_commands.herd_mentality.submit_answer import submit_answer
-from bot_commands.herd_mentality.start_session import start_session
+from bot_commands.game.herd_mentality.start_session import start_session
+from bot_commands.game.herd_mentality.cow import assign_cow
+from bot_commands.game.herd_mentality.rule import show_rules
+from bot_commands.game.herd_mentality.add_points_view import add_points_view
+from bot_commands.game.herd_mentality.end_session import end_session
+from bot_commands.game.herd_mentality.show_answers import show_answers
+from bot_commands.game.herd_mentality.show_results import show_results
+from bot_commands.game.herd_mentality.start_round import start_round
+from bot_commands.game.herd_mentality.submit_answer import submit_answer
+
+
 
 from bot_commands.oat import oat
 from bot_commands.question import question
@@ -44,7 +45,6 @@ async def on_ready():
       bot.tree.add_command(start_session, guild=discord.Object(id=guild_id))
       bot.tree.add_command(start_round, guild=discord.Object(id=guild_id))
       bot.tree.add_command(submit_answer, guild=discord.Object(id=guild_id))
-      bot.tree.add_command(add_points, guild=discord.Object(id=guild_id))
       bot.tree.add_command(add_points_view, guild=discord.Object(id=guild_id))
       bot.tree.add_command(show_answers, guild=discord.Object(id=guild_id))
       bot.tree.add_command(show_results, guild=discord.Object(id=guild_id))

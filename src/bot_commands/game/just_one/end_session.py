@@ -8,8 +8,8 @@ async def jend_command(interaction: discord.Interaction):
     current_session["guesser"] = None
     current_session["clues"] = {}
     
-    if os.path.exists('src/bot_commands/just_one/clues.csv'):
-        os.remove('src/bot_commands/just_one/clues.csv')
+    if os.path.exists('src/bot_commands/game/just_one/clues.csv'):
+        os.remove('src/bot_commands/game/just_one/clues.csv')
     
     log_game_state("Ended", current_session["clues"], current_session["guesser"])
     await interaction.response.send_message("Session ended. Ready for a new game.", ephemeral=True)

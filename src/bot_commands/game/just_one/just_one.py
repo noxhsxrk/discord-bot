@@ -22,8 +22,8 @@ def add_word_to_used(file_path, word):
 
 @bot.tree.command(name='just1', description='Start a new Just One game session.')
 async def just1_command(interaction: discord.Interaction, without: str = None):
-    if os.path.exists('src/bot_commands/just_one/clues.csv'):
-        os.remove('src/bot_commands/just_one/clues.csv')
+    if os.path.exists('src/bot_commands/game/just_one/clues.csv'):
+        os.remove('src/bot_commands/game/just_one/clues.csv')
         
     if current_session["guesser"] is not None:
         await interaction.response.send_message("A session is already active. Please end it before starting a new one.", ephemeral=True)
@@ -59,8 +59,8 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
             ]
             
 
-            words = get_words_from_file('src/constant/words.txt')
-            used_words = get_used_words('src/bot_commands/just_one/used_words.txt')
+            words = get_words_from_file('src/bot_commands/game/words.txt')
+            used_words = get_used_words('src/bot_commands/game/just_one/used_words.txt')
             available_words = list(set(words) - used_words)
 
             if not available_words:
@@ -69,7 +69,7 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
 
             selected_word = random.choice(available_words)
             current_session["word"] = selected_word
-            add_word_to_used('src/bot_commands/just_one/used_words.txt', selected_word)
+            add_word_to_used('src/bot_commands/game/just_one/used_words.txt', selected_word)
             
             for member in players:
                 if member['name'] != mapped_guesser:
