@@ -11,21 +11,20 @@ from .file_utils import (
 from .views import WordSelectionView, CountdownView
 from .constants import INSIDER_DIRECTORY, WORDS_FILE, USED_WORD_FILE, MIN_AVAILABLE_WORDS
 import colorama
-from colorama import Fore, Style
+from colorama import Fore
 from tabulate import tabulate
+from discord.ui import View, Button
 
 colorama.init(autoreset=True)
 
-async def start_insider(interaction: discord.Interaction, without: str = None, hide_insider: bool = True, minutes: int = 1, custom_word: str = None, use_file_words: bool = False):
+async def start_insider(interaction: discord.Interaction, without: bool = False, hide_insider: bool = True, minutes: int = 1, custom_word: str = None, use_ai: bool = False):
     global session_starter_id
 
     if not interaction.response.is_done():
         await interaction.response.defer(ephemeral=True)
 
-    def get_excluded_names():
-        excluded = set(name.strip() for name in without.split(',')) if without else set()
-        excluded.add(interaction.user.name)
-        return excluded
+    excluded = set()
+    excluded.add(interaction.user.id)
 
     async def get_active_members():
         channel = interaction.channel
@@ -39,14 +38,47 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
         return [
             {'id': member.id, 'name': member.name}
             for member in members
-            if member.name not in get_excluded_names()
+            if member.name not in excluded
         ]
 
+    class ExclusionView(View):
+        def __init__(self, members):
+            super().__init__()
+            for member in members:
+                member_name = next((m['name'] for m in members_names if m['id'] == member['id']), member['name'])
+                button = Button(label=member_name, custom_id=str(member['id']))
+                button.callback = self.on_button_click
+                self.add_item(button)
+
+            confirm_button = Button(label="Confirm", style=discord.ButtonStyle.green)
+            confirm_button.callback = self.confirm
+            self.add_item(confirm_button)
+
+        async def on_button_click(self, interaction: discord.Interaction):
+            member_name = interaction.data['custom_id']
+            excluded.add(member_name)
+            print(excluded)
+            await interaction.response.send_message(f"{member_name} has been excluded.", ephemeral=True)
+
+        async def confirm(self, interaction: discord.Interaction):
+            await interaction.response.send_message("Exclusion confirmed.", ephemeral=True)
+            self.stop()
+
+    if without:
+        active_members = await get_active_members()
+        if not active_members:
+            await interaction.followup.send("ไม่มีสมาชิกที่ใช้งานอยู่เพื่อเริ่มเกม", ephemeral=True)
+            return
+
+        view = ExclusionView(active_members)
+        await interaction.followup.send("Select members to exclude:", view=view, ephemeral=True)
+        await view.wait()
+
     def get_words():
-        if use_file_words:
-            return get_words_from_file_system()
-        else:
+        if use_ai:
             return generate_words_with_ollama()
+        else:
+            return get_words_from_file_system()
 
     def get_words_from_file_system():
         all_words = get_words_from_file(WORDS_FILE)
@@ -112,7 +144,7 @@ async def start_insider(interaction: discord.Interaction, without: str = None, h
             return
 
         word = await handle_word_selection(words)
-        if word and use_file_words:
+        if word and not use_ai:
             write_used_word(os.path.join(INSIDER_DIRECTORY, USED_WORD_FILE), word)
 
         return word
