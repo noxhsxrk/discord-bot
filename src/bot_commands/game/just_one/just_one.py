@@ -42,11 +42,13 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
     class PlayerSelectView(View):
         @discord.ui.select(placeholder="Choose the active player", options=player_options)
         async def select_callback(self, interaction: discord.Interaction, select: Select):
+            await interaction.response.defer(ephemeral=True)
+
             guesser = select.values[0]
             mapped_guesser = next((member['name'] for member in members_names if member['name'] == guesser), None)
             
             if not mapped_guesser:
-                await interaction.response.send_message(f"Player '{guesser}' not found.", ephemeral=True)
+                await interaction.followup.send(f"Player '{guesser}' not found.", ephemeral=True)
                 return
 
             players[:] = [
@@ -64,7 +66,7 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
             available_words = list(set(words) - used_words)
 
             if not available_words:
-                await interaction.response.send_message("No more words available. Please reset the used words list.", ephemeral=True)
+                await interaction.followup.send("No more words available. Please reset the used words list.", ephemeral=True)
                 return
 
             selected_word = random.choice(available_words)
@@ -78,6 +80,6 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
 
             current_session["guesser"] = mapped_guesser
             log_game_state("Started", current_session["clues"], mapped_guesser)
-            await interaction.response.send_message(f"Game started! {mapped_guesser} is the guesser.", ephemeral=True)
+            await interaction.followup.send(f"Game started! {mapped_guesser} is the guesser.", ephemeral=True)
 
     await interaction.response.send_message("Select the guesser:", view=PlayerSelectView(), ephemeral=True)
