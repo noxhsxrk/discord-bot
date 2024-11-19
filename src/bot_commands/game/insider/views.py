@@ -42,4 +42,11 @@ class CountdownView(discord.ui.View):
     async def stop_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.stop_timer = True
         self.stop()
-        await interaction.response.send_message("หยุดจับเวลาและสิ้นสุดเซสชันแล้ว", ephemeral=True) 
+        try:
+            if not interaction.response.is_done():
+                await interaction.response.send_message("หยุดจับเวลาและสิ้นสุดเซสชันแล้ว", ephemeral=True)
+            else:
+                await interaction.followup.send("หยุดจับเวลาและสิ้นสุดเซสชันแล้ว", ephemeral=True)
+        except discord.errors.NotFound:
+            print("ไม่สามารถส่งข้อความติดตามผล: ไม่พบ Webhook")
+  
