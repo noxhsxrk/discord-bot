@@ -39,6 +39,10 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
         if member.name not in (without.split(',') if without else [])
     ]
 
+    if not player_options:
+        await interaction.response.send_message("No available players to select as guesser.", ephemeral=True)
+        return
+
     class PlayerSelectView(View):
         @discord.ui.select(placeholder="Choose the active player", options=player_options)
         async def select_callback(self, interaction: discord.Interaction, select: Select):
@@ -76,7 +80,13 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
             for member in players:
                 if member['name'] != mapped_guesser:
                     user = await bot.fetch_user(member['id'])
-                    await user.send(f"The word to guess is: {selected_word}")
+                    try:
+                        await user.send(f"The word to guess is: {selected_word}")
+                    except discord.errors.Forbidden:
+                        await interaction.followup.send(
+                            f"Could not send a message to {member['name']}. They might have DMs disabled or have blocked the bot.",
+                            ephemeral=True
+                        )
 
             current_session["guesser"] = mapped_guesser
             log_game_state("Started", current_session["clues"], mapped_guesser)

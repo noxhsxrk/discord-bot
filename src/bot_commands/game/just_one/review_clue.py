@@ -27,6 +27,12 @@ async def jreview_command(interaction: discord.Interaction):
     for member in players:  
         if member['name'] != current_session["guesser"]:
             user = await bot.fetch_user(member['id'])
-            await user.send(f"Review the clues:\n{clues_message}")
+            try:
+                await user.send(f"Review the clues:\n{clues_message}")
+            except discord.errors.Forbidden:
+                await interaction.followup.send(
+                    f"Could not send message to {member['name']}. They might have DMs disabled or have blocked the bot.",
+                    ephemeral=True
+                )
 
     await interaction.followup.send("Clues sent for review.", ephemeral=True)
