@@ -4,6 +4,7 @@ from constant.config import members_names
 from tabulate import tabulate
 import os
 
+submitted_players = set()
 players = []
 
 current_session = {

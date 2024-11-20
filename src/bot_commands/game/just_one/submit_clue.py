@@ -1,9 +1,7 @@
 import discord
-from .game_logic import current_session, log_game_state
+from .game_logic import current_session, log_game_state, submitted_players
 from constant.config import bot, members_names
 import csv  
-
-submitted_players = set()
 
 @bot.tree.command(name='ja', description='Submit a clue word.')
 async def ja_command(interaction: discord.Interaction, clue: str):
