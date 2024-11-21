@@ -22,7 +22,9 @@ async def jreview_command(interaction: discord.Interaction):
         reader = csv.reader(csvfile)
         clues = list(reader)
 
-    clues_message = "\n".join([f"{next((member['name'] for member in lumi_members if member['id'] == name), name)}: {clue}" for name, clue in clues])
+    clues_message = "=================\n" + "\n".join(
+        [f"{next((member['name'] for member in lumi_members if member['id'] == name), name)}: {clue}" for name, clue in clues]
+    ) + "\n================="
 
     for member in players:  
         if member['name'] != current_session["guesser"]:

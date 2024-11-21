@@ -14,7 +14,9 @@ async def jshow_clue_command(interaction: discord.Interaction):
         reader = csv.reader(csvfile)
         clues = list(reader)
 
-    clues_message = "\n".join([f"{next((member['name'] for member in lumi_members if member['id'] == name), name)}: {clue}" for name, clue in clues])
+    clues_message = "=================\n" + "\n".join(
+        [f"{next((member['name'] for member in lumi_members if member['id'] == name), name)}: {clue}" for name, clue in clues]
+    ) + "\n================="
 
     await interaction.channel.send(f"Here are the clues:\n{clues_message}")
     await interaction.response.send_message("Clues have been sent to the channel.", ephemeral=True)
