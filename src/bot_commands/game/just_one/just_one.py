@@ -36,7 +36,7 @@ async def just1_command(interaction: discord.Interaction, without: str = None):
             value=next((m['name'] for m in members_names if m['id'] == member.id), member.name),
         )
         for member in channel_members
-        if member.name not in (without.split(',') if without else [])
+        if next((m['name'] for m in members_names if m['id'] == member.id), member.name) not in (without.split(',') if without else [])
     ]
 
     if not player_options:
