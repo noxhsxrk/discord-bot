@@ -4,6 +4,8 @@ from constant.config import guild_id,token,bot
 from bot_commands.game.insider.insider import insider_command
 from bot_commands.game.insider.end_insider import end_insider
 
+from bot_commands.game.just_one.without import jwithout_command
+from bot_commands.game.just_one.remove_without import jremove_without_command
 from bot_commands.game.just_one.just_one import just1_command
 from bot_commands.game.just_one.end_session import jend_command
 from bot_commands.game.just_one.remove_clue import jremove_command
@@ -64,6 +66,8 @@ async def on_ready():
       bot.tree.add_command(ja_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(jshow_clue_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(jshow_rules, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jwithout_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(jremove_without_command, guild=discord.Object(id=guild_id))  
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")

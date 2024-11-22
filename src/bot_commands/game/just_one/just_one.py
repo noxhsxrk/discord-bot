@@ -20,8 +20,17 @@ def add_word_to_used(file_path, word):
     with open(file_path, 'a', encoding='utf-8') as file:
         file.write(f"{word}\n")
 
+def get_without_list(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        return []
+
 @bot.tree.command(name='just1', description='Start a new Just One game session.')
-async def just1_command(interaction: discord.Interaction, without: str = None):
+async def just1_command(interaction: discord.Interaction):
+    without = ','.join(get_without_list('src/bot_commands/game/just_one/without.csv'))
+    
     if os.path.exists('src/bot_commands/game/just_one/clues.csv'):
         os.remove('src/bot_commands/game/just_one/clues.csv')
         
