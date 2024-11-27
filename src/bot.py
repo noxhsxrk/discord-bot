@@ -1,5 +1,7 @@
 import discord
 from constant.config import guild_id,token,bot
+import sys
+import os
 
 from bot_commands.game.insider.insider import insider_command
 from bot_commands.game.insider.end_insider import end_insider
@@ -69,6 +71,8 @@ async def on_ready():
       bot.tree.add_command(jwithout_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(jremove_without_command, guild=discord.Object(id=guild_id))  
       
+      bot.tree.add_command(restart_bot, guild=discord.Object(id=guild_id))
+      
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")
       
@@ -116,5 +120,12 @@ async def on_message(message):
               await message.reply(response)
 
               write_to_file(channel_id, "assistant", response)
+
+@bot.tree.command(name="restart", description="Restarts the bot")
+@discord.app_commands.checks.has_permissions(administrator=True)
+async def restart_bot(interaction: discord.Interaction):
+    await interaction.response.send_message("Restarting bot...")
+    print("Bot restart initiated")
+    os.execv(sys.executable, ['python'] + sys.argv)
 
 bot.run(token)
