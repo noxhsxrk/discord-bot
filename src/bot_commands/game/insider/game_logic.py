@@ -24,7 +24,10 @@ async def start_insider(interaction: discord.Interaction, without: bool = False,
         await interaction.response.defer(ephemeral=True)
 
     excluded = set()
-    excluded.add(interaction.user.id)
+    
+    user_name = next((member['name'] for member in await get_active_members() if member['id'] == interaction.user.id), None)
+    if user_name:
+        excluded.add(user_name)
 
     async def get_active_members():
         channel = interaction.channel
@@ -56,8 +59,8 @@ async def start_insider(interaction: discord.Interaction, without: bool = False,
 
         async def on_button_click(self, interaction: discord.Interaction):
             member_name = interaction.data['custom_id']
+            
             excluded.add(member_name)
-            print(excluded)
             await interaction.response.send_message(f"{member_name} has been excluded.", ephemeral=True)
 
         async def confirm(self, interaction: discord.Interaction):
@@ -164,8 +167,18 @@ async def start_insider(interaction: discord.Interaction, without: bool = False,
             if member['id'] == member_id:
                 return member['name']
         return None
+    
+    active_members = [member for member in active_members if member['name'] not in excluded]
+    
+    if active_members:
+        selected_member = random.choice(active_members)
+    else:
+        selected_member = None  
 
-    selected_member = random.choice(active_members)
+    if selected_member is None:
+        await interaction.followup.send("ไม่มีสมาชิกที่ใช้งานอยู่เพื่อเริ่มเกม", ephemeral=True)
+        return
+
     selected_member_name = get_member_name(selected_member['id']) or selected_member['name']
 
     word = custom_word or await regenerate_words(interaction)
