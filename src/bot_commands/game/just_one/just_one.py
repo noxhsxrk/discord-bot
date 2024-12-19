@@ -101,4 +101,12 @@ async def just1_command(interaction: discord.Interaction):
             log_game_state("Started", current_session["clues"], mapped_guesser)
             await interaction.followup.send(f"Game started! {mapped_guesser} is the guesser.", ephemeral=True)
 
+            embed = discord.Embed(title="Clue Submission Status", color=discord.Color.blue())
+            for member in players:
+                status = "🔴 not submitted"
+                embed.add_field(name=member['name'], value=status, inline=False)
+
+            message = await interaction.channel.send(embed=embed)
+            current_session["embed_message_id"] = message.id
+
     await interaction.response.send_message("Select the guesser:", view=PlayerSelectView(), ephemeral=True)

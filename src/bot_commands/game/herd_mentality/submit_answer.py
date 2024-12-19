@@ -1,7 +1,7 @@
 import csv
 import os
 import discord
-from constant.config import bot, submitted_users, name_mapping, active_lumi_members
+from constant.config import bot, submitted_users, name_mapping
 
 @bot.tree.command(name='ha', description='Submit an answer for the current question.')
 async def submit_answer(interaction: discord.Interaction, answer: str):
@@ -30,9 +30,9 @@ async def submit_answer(interaction: discord.Interaction, answer: str):
       return
 
   user_name = None
-  for member in active_lumi_members:
-      if member['id'] == interaction.user.id:
-          user_name = member['name']
+  for member in interaction.channel.members:
+      if member.id == interaction.user.id:
+          user_name = member.display_name
           break
 
   if user_name is None:
@@ -58,6 +58,6 @@ async def submit_answer(interaction: discord.Interaction, answer: str):
   await interaction.response.send_message(f"ส่งคำตอบ: {answer} แล้ว", ephemeral=True)
   await interaction.channel.send(f"{thai_name} ได้ส่งคำตอบแล้ว!")
 
-  all_player_ids = {member['id'] for member in active_lumi_members}
+  all_player_ids = {member.id for member in interaction.channel.members}
   if submitted_users == all_player_ids:
       await interaction.channel.send("ทุกคนส่งคำตอบ ครบหมดแล้ว!")

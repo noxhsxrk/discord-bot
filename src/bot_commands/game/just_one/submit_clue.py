@@ -28,6 +28,17 @@ async def ja_command(interaction: discord.Interaction, clue: str):
         writer = csv.writer(csvfile)
         writer.writerow([submitter_name, clue])
 
+    channel = interaction.channel
+    message_id = current_session.get("embed_message_id")
+    if message_id:
+        message = await channel.fetch_message(message_id)
+        embed = message.embeds[0]
+        for i, field in enumerate(embed.fields):
+            if field.name == submitter_name:
+                embed.set_field_at(i, name=field.name, value="🟢 submitted", inline=False)
+                break
+        await message.edit(embed=embed)
+
     all_submitted = all(
         member['name'] in current_session["clues"] or member['name'] == current_session["guesser"]
         for member in members_names
