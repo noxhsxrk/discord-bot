@@ -5,7 +5,7 @@ import discord
 import ollama
 from constant.config import bot, members_names
 from .file_utils import (
-    get_session_file_path, log_insider_selection, get_insider_selection_counts,
+    get_session_file_path, log_insider_selection,
     get_words_from_file, get_used_words, write_used_word
 )
 from .views import WordSelectionView, CountdownView
@@ -25,10 +25,6 @@ async def start_insider(interaction: discord.Interaction, without: bool = False,
 
     excluded = set()
     
-    user_name = next((member['name'] for member in await get_active_members() if member['id'] == interaction.user.id), None)
-    if user_name:
-        excluded.add(user_name)
-
     async def get_active_members():
         channel = interaction.channel
         if isinstance(channel, discord.TextChannel):
@@ -43,6 +39,10 @@ async def start_insider(interaction: discord.Interaction, without: bool = False,
             for member in members
             if member.name not in excluded
         ]
+    
+    user_name = next((member['name'] for member in await get_active_members() if member['id'] == interaction.user.id), None)
+    if user_name:
+        excluded.add(user_name)
 
     class ExclusionView(View):
         def __init__(self, members):
