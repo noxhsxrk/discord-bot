@@ -26,7 +26,7 @@ from bot_commands.game.herd_mentality.show_results import show_results
 from bot_commands.game.herd_mentality.start_round import start_round
 from bot_commands.game.herd_mentality.submit_answer import submit_answer
 
-
+from bot_commands.random import random_person
 
 from bot_commands.oat import oat
 from bot_commands.question import question
@@ -72,6 +72,8 @@ async def on_ready():
       bot.tree.add_command(jremove_without_command, guild=discord.Object(id=guild_id))  
       
       bot.tree.add_command(restart_bot, guild=discord.Object(id=guild_id))
+      
+      bot.tree.add_command(random_person, guild=discord.Object(id=guild_id))
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")
