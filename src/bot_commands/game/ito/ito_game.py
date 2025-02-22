@@ -23,7 +23,7 @@ class ItoGame:
         self.theme = theme
         self.players: Dict[int, PlayerState] = {}
         self.number_range = (1, 100)
-        self.cards_per_player = min(max(1, cards_per_player), 2)  # Ensure between 1 and 2
+        self.cards_per_player = max(1, cards_per_player)  # Remove upper limit, just ensure at least 1
         self.lives = initial_lives
         self.selected_players: Set[int] = set()  # Players who have played all their numbers
         self.current_arrangement: List[tuple[int, int]] = []  # (user_id, card_index)

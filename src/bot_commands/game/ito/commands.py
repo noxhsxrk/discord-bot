@@ -50,9 +50,10 @@ class ThemeSelectView(discord.ui.View):
                     for player_id, player_state in game.players.items():
                         member = interaction.guild.get_member(player_id)
                         if member:
-                            numbers_str = ", ".join(str(n) for n in player_state.numbers)
+                            # Format numbers as numbered cards
+                            numbers_str = "\n".join(f"Card {i+1}: {n}" for i, n in enumerate(player_state.numbers))
                             try:
-                                await member.send(f"Your number(s) for the Ito game: {numbers_str}\nTheme: {game.theme}")
+                                await member.send(f"Your number(s) for the Ito game:\n{numbers_str}\nTheme: {game.theme}")
                                 player_list.append(f"{player_state.color} {member.display_name}")
                             except discord.Forbidden:
                                 await interaction.channel.send(f"Couldn't send DM to {member.mention}. Please enable DMs!")
@@ -146,15 +147,19 @@ class PlayerSelectView(discord.ui.View):
                 self.remove_item(item)
         
         # Add buttons for remaining unplayed cards
-        unplayed_numbers = self.get_unplayed_numbers(self.selected_user_id)
-        for i, number in enumerate(sorted(unplayed_numbers)):
-            button = discord.ui.Button(
-                label=f"Card {i+1}",
-                style=discord.ButtonStyle.primary,
-                custom_id=f"number_{number}"
-            )
-            button.callback = self.create_number_callback(number)
-            self.add_item(button)
+        player = self.game.players[self.selected_user_id]
+        played_indices = [idx for uid, idx in self.game.current_arrangement if uid == self.selected_user_id]
+        
+        # Keep original card order
+        for i, number in enumerate(player.numbers):
+            if i not in played_indices:
+                button = discord.ui.Button(
+                    label=f"Card {i+1}",
+                    style=discord.ButtonStyle.primary,
+                    custom_id=f"number_{number}"
+                )
+                button.callback = self.create_number_callback(number)
+                self.add_item(button)
         
         await interaction.response.edit_message(view=self)
     
@@ -197,11 +202,11 @@ class PlayerSelectView(discord.ui.View):
                     
                     # Show victory message with final arrangement
                     result_message = "🎉 Congratulations! You've arranged everyone correctly!\n\nFinal arrangement:\n"
-                    for i, (uid, _) in enumerate(self.game.current_arrangement):
+                    for i, (uid, card_index) in enumerate(self.game.current_arrangement):
                         player = self.game.players[uid]
                         member = interaction.guild.get_member(uid)
                         number = all_numbers[i]
-                        result_message += f"{i+1}. {player.color} {member.display_name}'s {number}\n"
+                        result_message += f"{i+1}. {player.color} {member.display_name}'s Card {card_index + 1} ({number})\n"
                     
                     # Get new themes for next round
                     themes = theme_manager.get_random_themes(3)
@@ -247,14 +252,18 @@ class PlayerSelectView(discord.ui.View):
                         for uid, p in self.game.players.items():
                             if number in p.numbers:
                                 m = interaction.guild.get_member(uid)
-                                result_message += f"{i+1}. {p.color} {m.display_name}'s {number}\n"
+                                card_num = p.numbers.index(number) + 1
+                                result_message += f"{i+1}. {p.color} {m.display_name}'s Card {card_num} ({number})\n"
                                 break
                     
                     active_games.pop(interaction.channel_id)
                     await interaction.response.edit_message(content=result_message, view=None)
                 else:
+                    # Find the original card number (1-based index)
+                    card_num = player.numbers.index(button_number) + 1
+                    
                     await interaction.response.edit_message(
-                        content=f"❌ Wrong! {player.color} {member.display_name}'s {button_number} is not in position {current_position + 1}!\n\n"
+                        content=f"❌ Wrong! {player.color} {member.display_name}'s Card {card_num} is not in position {current_position + 1}!\n\n"
                                f"Lives remaining: ❤️ x {self.game.lives}\n\n"
                                f"Try again with /ito_submit",
                         view=None
@@ -265,7 +274,7 @@ class PlayerSelectView(discord.ui.View):
         return number_callback
 
 @app_commands.command(name="ito_start", description="Start a new Ito game")
-@app_commands.describe(cards_per_player="Number of cards per player (1 or 2)")
+@app_commands.describe(cards_per_player="Number of cards per player (minimum 1)")
 async def start_ito(interaction: discord.Interaction, cards_per_player: int = 1):
     channel_id = interaction.channel_id
     
@@ -274,8 +283,8 @@ async def start_ito(interaction: discord.Interaction, cards_per_player: int = 1)
         return
     
     # Validate cards_per_player
-    if cards_per_player not in [1, 2]:
-        await interaction.response.send_message("Number of cards per player must be 1 or 2!")
+    if cards_per_player < 1:
+        await interaction.response.send_message("Number of cards per player must be at least 1!")
         return
     
     # Get voice channel members
@@ -287,6 +296,12 @@ async def start_ito(interaction: discord.Interaction, cards_per_player: int = 1)
     members = voice_channel.members
     if len(members) < 2:
         await interaction.response.send_message("Need at least 2 players in the voice channel to start!")
+        return
+    
+    # Check if there are enough numbers in the range for all players
+    total_cards_needed = len([m for m in members if not m.bot]) * cards_per_player
+    if total_cards_needed > 100:  # assuming number_range is (1, 100)
+        await interaction.response.send_message(f"Too many cards requested! With {len([m for m in members if not m.bot])} players and {cards_per_player} cards each, you would need {total_cards_needed} unique numbers. Maximum available is 100.")
         return
     
     # Get random themes
