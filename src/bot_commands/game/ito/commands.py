@@ -4,14 +4,13 @@ from typing import Dict, List
 from .ito_game import ItoGame
 from .theme_manager import ThemeManager
 
-# Store active games and their states per channel
 active_games: Dict[int, ItoGame] = {}
-theme_states: Dict[int, List[str]] = {}  # Store theme choices per channel
+theme_states: Dict[int, List[str]] = {}
 theme_manager = ThemeManager()
 
 class ThemeSelectView(discord.ui.View):
     def __init__(self, themes: List[str], interaction: discord.Interaction, initial_lives: int = 3, cards_per_player: int = 1):
-        super().__init__(timeout=60)  # 60 seconds timeout
+        super().__init__(timeout=60)
         self.themes = themes
         self.original_interaction = interaction
         self.initial_lives = initial_lives
