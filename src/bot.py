@@ -31,11 +31,7 @@ from bot_commands.random import random_person
 from bot_commands.oat import oat
 from bot_commands.question import question
 
-from conversation_history import check_file_age, read_from_file, write_to_file
-from get_openai_response import get_openai_response
 from handle_screen_share_start import handle_screen_share_start
-from handle_user_join_channel import handle_user_join_channel, pre_generate_messages
-from image_generator import handle_image_request
 
 @bot.event
 async def on_ready():
@@ -77,9 +73,7 @@ async def on_ready():
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")
-      
-    #   await pre_generate_messages()
-    #   print("Pre-generated messages loaded successfully.")
+
   except Exception as e:
       print(f"Error syncing commands: {e}")
 
@@ -93,35 +87,6 @@ async def on_voice_state_update(member, before, after):
   if not before.self_stream and after.self_stream:
       await handle_screen_share_start(voice_client, after.channel, member)
 
-  if after.channel and after.channel != before.channel:
-      await handle_user_join_channel(voice_client, after.channel, member)
-
-@bot.event
-async def on_message(message):
-  if message.author.bot:
-      return
-
-  channel_id = message.channel.id
-
-  check_file_age(channel_id)
-
-  write_to_file(channel_id, "user", message.content)
-
-  if bot.user.mentioned_in(message):
-      content_lower = message.content.lower()
-      if any(keyword in content_lower for keyword in ["สร้าง", "สร้างรูป", "ขอรูป", "รูป"]):
-          await handle_image_request(bot, message, content_lower)
-      else:
-          async with message.channel.typing():
-              conversation_history = read_from_file(channel_id)
-              conversation_text = "\n".join(
-                  f"{entry['role']}: {entry['content']}" for entry in conversation_history
-              )
-
-              response = await get_openai_response(conversation_text, 250, message.author.id)
-              await message.reply(response)
-
-              write_to_file(channel_id, "assistant", response)
 
 @bot.tree.command(name="restart", description="Restarts the bot")
 @discord.app_commands.checks.has_permissions(administrator=True)
