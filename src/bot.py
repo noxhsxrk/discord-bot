@@ -78,8 +78,9 @@ async def on_ready():
       bot.tree.add_command(submit_arrangement, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_ito, guild=discord.Object(id=guild_id))
       
-      # Load fetch words cog
-      await bot.load_extension("bot_commands.game.fetch_words")
+      # Initialize and add fetch words command
+      fetch_words_cog = FetchWords(bot)
+      bot.tree.add_command(fetch_words_cog.fetch_words, guild=discord.Object(id=guild_id))
       
       bot.tree.add_command(restart_bot, guild=discord.Object(id=guild_id))
       
