@@ -1,5 +1,6 @@
 import os
 import requests
+import warnings
 from discord import app_commands
 from constant.config import load_dotenv
 
@@ -22,8 +23,11 @@ async def fetch_words(interaction):
             "Authorization": f"Bearer {bearer_token}"
         }
 
-        # Make API request
-        response = requests.get(url, headers=headers)
+        # Warning about SSL verification
+        warnings.warn("SSL verification is disabled. Use this only if you trust the API endpoint.")
+        
+        # Make API request with SSL verification disabled
+        response = requests.get(url, headers=headers, verify=False)
         response.raise_for_status()  # Raise exception for non-200 status codes
         
         data = response.json()
