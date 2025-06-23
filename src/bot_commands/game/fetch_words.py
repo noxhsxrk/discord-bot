@@ -53,6 +53,3 @@ async def fetch_words(interaction):
         await interaction.edit_original_response(
             content=f"An error occurred: {str(e)}"
         )
-
-async def setup(bot):
-    await bot.add_cog(FetchWords(bot)) 
