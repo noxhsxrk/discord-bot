@@ -1,4 +1,4 @@
-discord.py
+discord.py>=2.0.0
 PyNaCl
 python-dotenv
 openai==0.28.0
@@ -9,3 +9,4 @@ ollama
 colorama
 tabulate
 dearpygui
+requests>=2.31.0

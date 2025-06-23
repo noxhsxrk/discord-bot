@@ -32,6 +32,7 @@ from bot_commands.game.ito import (
     end_ito
 )
 
+from bot_commands.game.fetch_words import FetchWords
 from bot_commands.random import random_person
 from bot_commands.oat import oat
 from bot_commands.question import question
@@ -76,6 +77,9 @@ async def on_ready():
       bot.tree.add_command(start_ito, guild=discord.Object(id=guild_id))
       bot.tree.add_command(submit_arrangement, guild=discord.Object(id=guild_id))
       bot.tree.add_command(end_ito, guild=discord.Object(id=guild_id))
+      
+      # Load fetch words cog
+      await bot.load_extension("bot_commands.game.fetch_words")
       
       bot.tree.add_command(restart_bot, guild=discord.Object(id=guild_id))
       
