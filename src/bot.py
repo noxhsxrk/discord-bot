@@ -2,6 +2,7 @@ import discord
 from constant.config import guild_id,token,bot
 import sys
 import os
+import random
 
 from bot_commands.game.insider.insider import insider_command
 from bot_commands.game.insider.end_insider import end_insider
@@ -97,6 +98,55 @@ async def on_voice_state_update(member, before, after):
       return
 
   voice_client = discord.utils.get(bot.voice_clients, guild=member.guild)
+
+  TRIGGER_MEMBER_ID = 846709460146585610  # Member who triggers the action
+  TARGET_MEMBER_ID = 612569701368856581   # Member who gets moved
+  
+  EXCLUDED_CHANNELS = {
+      1273862909717643364,
+      1283271249124135024,
+      1273863622753255465,
+      1273861439240802391,
+      1288047044853891146,
+      1273884418259288126,
+      1273863713103020106
+  }
+  
+  if (member.id == TRIGGER_MEMBER_ID and 
+      after.channel and 
+      (not before.channel or before.channel != after.channel)):
+      
+      target_member = None
+      for channel_member in after.channel.members:
+          if channel_member.id == TARGET_MEMBER_ID:
+              target_member = channel_member
+              break
+      
+      if target_member:
+          available_channels = [channel for channel in member.guild.voice_channels 
+                               if channel != after.channel and 
+                               channel.id not in EXCLUDED_CHANNELS and
+                               (not channel.user_limit or len(channel.members) < channel.user_limit)]
+          
+          if available_channels:
+              empty_channels = [channel for channel in available_channels if len(channel.members) == 0]
+              
+              if empty_channels:
+                  random_channel = random.choice(empty_channels)
+                  print(f"Moving to empty channel: {random_channel.name}")
+              else:
+                  random_channel = random.choice(available_channels)
+                  print(f"No empty channels available, moving to: {random_channel.name}")
+              
+              try:
+                  await target_member.move_to(random_channel)
+                  print(f"Moved member {target_member.display_name} from {after.channel.name} to {random_channel.name}")
+              except discord.Forbidden:
+                  print(f"Bot doesn't have permission to move {target_member.display_name}")
+              except discord.HTTPException as e:
+                  print(f"Failed to move member {target_member.display_name}: {e}")
+          else:
+              print("No available voice channels to move the target member to")
 
   if not before.self_stream and after.self_stream:
       await handle_screen_share_start(voice_client, after.channel, member)
