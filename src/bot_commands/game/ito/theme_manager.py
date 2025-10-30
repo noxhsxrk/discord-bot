@@ -1,6 +1,6 @@
 import random
 import os
-from typing import List, Optional
+from typing import List
 
 class ThemeManager:
     def __init__(self):
@@ -21,16 +21,12 @@ class ThemeManager:
         all_themes = self._read_themes(self.themes_file)
         used_themes = self._read_themes(self.used_themes_file)
         
-        # Filter out used themes
         available_themes = [t for t in all_themes if t not in used_themes]
         
-        # If we're running low on themes, reset the used themes
         if len(available_themes) < count:
             available_themes = all_themes
-            # Clear used themes file
             open(self.used_themes_file, 'w').close()
             
-        # Return random themes
         return random.sample(available_themes, min(count, len(available_themes)))
         
     def mark_theme_as_used(self, theme: str) -> None:

@@ -15,7 +15,6 @@ PLAYER_EMOJIS = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼",
                  "🐳", "🦈", "🦂", "🦗", "🦋", "🦜", "🐉", "🐌", "🦚", "🦫"]
 
 def generate_player_identifier(index: int) -> str:
-    """Generate a unique identifier for a player using emojis"""
     return PLAYER_EMOJIS[index % len(PLAYER_EMOJIS)]
 
 class ItoGame:
@@ -61,11 +60,9 @@ class ItoGame:
         return True
     
     def get_unselected_players(self) -> List[int]:
-        """Get list of players that haven't played all their numbers yet"""
         return [pid for pid in self.players.keys() if pid not in self.selected_players]
     
     def is_game_complete(self) -> bool:
-        """Check if all numbers have been placed"""
         total_numbers = sum(len(p.numbers) for p in self.players.values())
         return len(self.current_arrangement) == total_numbers
     

@@ -16,7 +16,6 @@ class ThemeSelectView(discord.ui.View):
         self.initial_lives = initial_lives
         self.cards_per_player = cards_per_player
         
-        # Add a button for each theme
         for i, theme in enumerate(themes):
             button = discord.ui.Button(
                 label=f"Theme {i+1}",
@@ -30,17 +29,14 @@ class ThemeSelectView(discord.ui.View):
         async def button_callback(interaction: discord.Interaction):
             channel_id = interaction.channel_id
             
-            # Mark theme as used
             theme_manager.mark_theme_as_used(theme)
             
-            # Create game and set up players
             game = ItoGame(theme, self.initial_lives, self.cards_per_player)
             voice_channel = interaction.user.voice.channel
             if voice_channel:
                 player_ids = [member.id for member in voice_channel.members if not member.bot]
                 game.setup_players(player_ids)
                 
-                # Start the game immediately
                 if game.start_game():
                     active_games[channel_id] = game
                     
@@ -49,7 +45,6 @@ class ThemeSelectView(discord.ui.View):
                     for player_id, player_state in game.players.items():
                         member = interaction.guild.get_member(player_id)
                         if member:
-                            # Format numbers as numbered cards
                             numbers_str = "\n".join(f"Card {i+1}: {n}" for i, n in enumerate(player_state.numbers))
                             try:
                                 await member.send(f"Your number(s) for the Ito game:\n{numbers_str}\nTheme: {game.theme}")
@@ -84,12 +79,10 @@ class ThemeSelectView(discord.ui.View):
         return button_callback
     
     async def on_timeout(self):
-        # Clean up on timeout
         channel_id = self.original_interaction.channel_id
         if channel_id in theme_states:
             theme_states.pop(channel_id)
             
-        # Disable all buttons
         for item in self.children:
             item.disabled = True
         
@@ -108,7 +101,6 @@ class PlayerSelectView(discord.ui.View):
         self.original_interaction = interaction
         self.selected_user_id = None
         
-        # Add dropdown for player selection
         self.player_select = discord.ui.Select(
             placeholder="Choose a player",
             min_values=1,
@@ -278,35 +270,35 @@ async def start_ito(interaction: discord.Interaction, cards_per_player: int = 1)
     channel_id = interaction.channel_id
     
     if channel_id in active_games:
-        await interaction.response.send_message("A game is already in progress in this channel!")
+        await interaction.response.send_message("A game is already in progress in this channel!", ephemeral=True)
         return
     
     # Validate cards_per_player
     if cards_per_player < 1:
-        await interaction.response.send_message("Number of cards per player must be at least 1!")
+        await interaction.response.send_message("Number of cards per player must be at least 1!", ephemeral=True)
         return
     
     # Get voice channel members
     if not interaction.guild or not interaction.user.voice:
-        await interaction.response.send_message("You must be in a voice channel to start the game!")
+        await interaction.response.send_message("You must be in a voice channel to start the game!", ephemeral=True)
         return
         
     voice_channel = interaction.user.voice.channel
     members = voice_channel.members
     if len(members) < 2:
-        await interaction.response.send_message("Need at least 2 players in the voice channel to start!")
+        await interaction.response.send_message("Need at least 2 players in the voice channel to start!", ephemeral=True)
         return
     
     # Check if there are enough numbers in the range for all players
     total_cards_needed = len([m for m in members if not m.bot]) * cards_per_player
     if total_cards_needed > 100:  # assuming number_range is (1, 100)
-        await interaction.response.send_message(f"Too many cards requested! With {len([m for m in members if not m.bot])} players and {cards_per_player} cards each, you would need {total_cards_needed} unique numbers. Maximum available is 100.")
+        await interaction.response.send_message(f"Too many cards requested! With {len([m for m in members if not m.bot])} players and {cards_per_player} cards each, you would need {total_cards_needed} unique numbers. Maximum available is 100.", ephemeral=True)
         return
     
     # Get random themes
     themes = theme_manager.get_random_themes(3)
     if not themes:
-        await interaction.response.send_message("No available themes! Please check the themes file.")
+        await interaction.response.send_message("No available themes! Please check the themes file.", ephemeral=True)
         return
     
     # Store themes for selection
@@ -321,20 +313,20 @@ async def start_ito(interaction: discord.Interaction, cards_per_player: int = 1)
     )
     
     view = ThemeSelectView(themes, interaction, cards_per_player=cards_per_player)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 @app_commands.command(name="ito_submit", description="Select the next player in the sequence")
 async def submit_arrangement(interaction: discord.Interaction):
     channel_id = interaction.channel_id
     
     if channel_id not in active_games:
-        await interaction.response.send_message("No active game in this channel!")
+        await interaction.response.send_message("No active game in this channel!", ephemeral=True)
         return
         
     game = active_games[channel_id]
     
     if game.is_game_complete():
-        await interaction.response.send_message("The game is already complete! Start a new game with /ito_start")
+        await interaction.response.send_message("The game is already complete! Start a new game with /ito_start", ephemeral=True)
         return
     
     # Create player selection view
@@ -362,10 +354,10 @@ async def end_ito(interaction: discord.Interaction):
     channel_id = interaction.channel_id
     
     if channel_id not in active_games:
-        await interaction.response.send_message("No active game in this channel!")
+        await interaction.response.send_message("No active game in this channel!", ephemeral=True)
         return
         
     active_games.pop(channel_id)
     if channel_id in theme_states:
         theme_states.pop(channel_id)
-    await interaction.response.send_message("Game ended! Start a new game with /ito_start") 
+    await interaction.response.send_message("Game ended! Start a new game with /ito_start", ephemeral=True) 
