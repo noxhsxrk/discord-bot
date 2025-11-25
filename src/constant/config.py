@@ -23,6 +23,8 @@ AUTHORIZED_USER_ID = int(os.getenv('AUTHORIZED_USER_ID'))
 lumi_members = json.loads(os.getenv('LUMI_MEMBERS'))
 members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
+C_DATA_FILE = 'c_data.json'
+
 active_lumi_members = []
 conversation_history = defaultdict(list)
 

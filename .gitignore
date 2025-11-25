@@ -9,3 +9,4 @@ discord_bot.sh
 *.log
 *.txt
 *.csv
+c_data.json
