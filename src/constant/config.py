@@ -24,6 +24,7 @@ lumi_members = json.loads(os.getenv('LUMI_MEMBERS'))
 members_names = json.loads(os.getenv('MEMBERS_NAMES'))
 
 C_DATA_FILE = 'c_data.json'
+MAX_SUBMISSIONS = 1
 
 active_lumi_members = []
 conversation_history = defaultdict(list)

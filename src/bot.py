@@ -38,8 +38,8 @@ from bot_commands.random import random_person
 from bot_commands.oat import oat
 from bot_commands.question import question
 from bot_commands.game.plate_roulette.c_command import c_command
-from bot_commands.game.plate_roulette.cex_command import cex_command
 from bot_commands.game.plate_roulette.cs_command import cs_command
+from bot_commands.game.plate_roulette.cc_command import cc_command
 
 from handle_screen_share_start import handle_screen_share_start
 
@@ -90,8 +90,8 @@ async def on_ready():
       bot.tree.add_command(random_person, guild=discord.Object(id=guild_id))
       
       bot.tree.add_command(c_command, guild=discord.Object(id=guild_id))
-      bot.tree.add_command(cex_command, guild=discord.Object(id=guild_id))
       bot.tree.add_command(cs_command, guild=discord.Object(id=guild_id))
+      bot.tree.add_command(cc_command, guild=discord.Object(id=guild_id))
       
       await bot.tree.sync(guild=discord.Object(id=guild_id))
       print("Commands synced successfully.")

@@ -2,7 +2,7 @@ import discord
 import json
 import os
 from discord import app_commands
-from constant.config import members_names, C_DATA_FILE
+from constant.config import members_names, C_DATA_FILE, MAX_SUBMISSIONS
 
 def load_data():
     if not os.path.exists(C_DATA_FILE):
@@ -17,7 +17,7 @@ def save_data(data):
     with open(C_DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-@app_commands.command(name="c", description="Submit a text (one time only)")
+@app_commands.command(name="c", description="Submit a text")
 async def c_command(interaction: discord.Interaction, text: str):
     user_id = interaction.user.id
     
@@ -37,8 +37,6 @@ async def c_command(interaction: discord.Interaction, text: str):
 
     data = load_data()
     
-    # Check if user (by Name) has already submitted?
-    # Or by ID?
     # Migration: Convert string values to list
     migrated = False
     for key, value in data.items():
@@ -49,14 +47,17 @@ async def c_command(interaction: discord.Interaction, text: str):
     if migrated:
         save_data(data)
 
-    # Check if user has already submitted
-    # Current rule: 1 person 1 text (even with array structure)
-    if user_name in data:
-        await interaction.response.send_message("คุณส่งข้อความไปแล้ว ไม่สามารถส่งซ้ำได้", ephemeral=True)
+    # Check if user has reached submission limit
+    user_submissions = data.get(user_name, [])
+    if len(user_submissions) >= MAX_SUBMISSIONS:
+        await interaction.response.send_message(f"คุณส่งข้อความครบ {MAX_SUBMISSIONS} ครั้งแล้ว ไม่สามารถส่งเพิ่มได้", ephemeral=True)
         return
 
     # Save data as list
-    data[user_name] = [text]
+    if user_name not in data:
+        data[user_name] = []
+    data[user_name].append(text)
+    
     try:
         save_data(data)
     except Exception as e:
