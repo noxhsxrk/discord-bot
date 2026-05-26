@@ -1,3 +1,6 @@
+import truststore
+truststore.inject_into_ssl()
+
 import discord
 from constant.config import guild_id,token,bot
 import sys

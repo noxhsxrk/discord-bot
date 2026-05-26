@@ -10,3 +10,4 @@ colorama
 tabulate
 dearpygui
 requests>=2.31.0
+truststore
